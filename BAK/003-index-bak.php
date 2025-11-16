@@ -4,102 +4,143 @@ include "cadre-list.php";
 include "posts.php";
 include "candidates.php";
 
-// ----------------- PREP -----------------
+// extract short name lists for quick checks
+$general_keys = array_keys($general_cadres['GENERAL']);
+$technical_keys = array_keys($technical_cadres['TECHNICAL']);
 
-// index posts by short cadre name for O(1) access
-$postsByCadre = [];
-foreach ($post_available as $code => $p) {
-    $postsByCadre[$p['cadre']] = $code;
-}
-
-// normalize candidate choices upfront
-foreach ($candidates as &$cand) {
-    if (isset($cand['choice_list'])) {
-        $cand['choices'] = array_map('strtoupper', array_filter(array_map('trim', explode(' ', $cand['choice_list']))));
-    } else {
-        $cand['choices'] = [];
-    }
-}
-unset($cand);
-
-// copy of remaining posts
+// Make a working copy of post availability
 $post_remaining = $post_available;
 
-// helper: primary merit for sorting
+// Helper functions for craft the application
 function primary_merit($cand) {
+    // If candidate has general merit (GG or GT) use that as primary
     if (!empty($cand['general_merit_position'])) return $cand['general_merit_position'];
+    // else if technical merits exist, use the minimum (best) technical rank
     if (!empty($cand['technical_merit_position']) && is_array($cand['technical_merit_position'])) {
         return min($cand['technical_merit_position']);
     }
     return PHP_INT_MAX;
 }
 
-// ----------------- SORT -----------------
-usort($candidates, fn($a,$b) => primary_merit($a) <=> primary_merit($b));
+// Normalize a choice token (trim + uppercase)
+function normChoice($token) {
+    return strtoupper(trim($token));
+}
 
-// ----------------- ALLOCATION -----------------
+// sort candidates by primary merit
+usort($candidates, function($a, $b){
+    return primary_merit($a) <=> primary_merit($b);
+});
+
+// SINGLE PASS ALLOCATION 
 $final_alloc = [];
 
-foreach ($candidates as $cand) {
-
+foreach ($candidates as $cand) 
+{
     $assigned = false;
+    $rawChoices = explode(' ', $cand['choice_list']);
+    $choices = array_map('normChoice', $rawChoices);
 
-    foreach ($cand['choices'] as $ch) {
+    foreach ($choices as $ch) 
+    {
+        // skip invalid
+        if ($ch === '') continue;
 
-        // determine type
-        if (isset($general_cadres['GENERAL'][$ch])) $type = 'GENERAL';
-        elseif (isset($technical_cadres['TECHNICAL'][$ch])) $type = 'TECHNICAL';
-        else continue;
+        // determine type (GENERAL or TECHNICAL)
+        $type = null;
 
-        // check tech merit eligibility
-        if ($type === 'TECHNICAL') {
-            if (!isset($cand['technical_merit_position'][$ch])) continue;
+        if (in_array($ch, $general_keys, true)) $type = 'GENERAL';
+
+        elseif (in_array($ch, $technical_keys, true)) $type = 'TECHNICAL';
+
+        else continue; // unknown choice
+
+        // For technical choices findout the candidate actually has a technical merit entry for that cadre
+        if( $type === 'TECHNICAL' ) 
+        {
+            if( empty($cand['technical_merit_position']) || !is_array($cand['technical_merit_position']) || !isset($cand['technical_merit_position'][$ch]) ) 
+            {
+                // candidate is not eligible for this technical cadre (no tech merit) — skip
+                continue;
+            }
         }
 
-        // find post code
-        if (!isset($postsByCadre[$ch])) continue;
-        $postCode = $postsByCadre[$ch];
+        // Find the post code in $post_remaining that matches this short cadre name
+        $foundPostCode = null;
 
-        // MERIT allocation
-        $canUseMerit = ($post_remaining[$postCode]['MQ'] ?? 0) > 0;
-        if ($canUseMerit) {
-            $post_remaining[$postCode]['MQ']--;
+        foreach( $post_remaining as $code => $post ) 
+        {
+            if ($post['cadre'] === $ch) { $foundPostCode = $code; break; }
+        }
+
+        if( $foundPostCode === null ) continue; // no post entry found
+
+        // MERIT check
+        $canUseMerit = false;
+
+        if( $type === 'GENERAL' && !empty($cand['general_merit_position']) )
+        {
+            $canUseMerit = ($post_remaining[$foundPostCode]['MQ'] > 0);
+        } 
+        elseif( $type === 'TECHNICAL' ) 
+        {
+            // technical candidate must have a tech merit for this cadre, 
+            // and MQ seat must exist
+            $canUseMerit = ($post_remaining[$foundPostCode]['MQ'] > 0);
+        }
+
+        if( $canUseMerit ) 
+        {
+            $post_remaining[$foundPostCode]['MQ']--;
+
             $final_alloc[] = ['candidate'=>$cand, 'cadre'=>$ch, 'quota'=>'MERIT', 'type'=>$type];
+
             $assigned = true;
+
             break;
         }
 
-        // QUOTA allocation
-        if (!empty($cand['quota']) && is_array($cand['quota'])) {
-            foreach (['CFF','EM','PHC'] as $q) {
-                if (!empty($cand['quota'][$q]) && ($post_remaining[$postCode][$q] ?? 0) > 0) {
-                    $post_remaining[$postCode][$q]--;
+        // QUOTA check (CFF -> EM -> PHC)
+        if( !empty($cand['quota']) && is_array($cand['quota']) )
+        {
+            foreach( ['CFF','EM','PHC'] as $q )
+            {
+                if( !empty($cand['quota'][$q]) && !empty($post_remaining[$foundPostCode][$q]) && $post_remaining[$foundPostCode][$q] > 0 )
+                {
+                    // For technical cadre, still require tech eligibility
+                    $post_remaining[$foundPostCode][$q]--;
+
                     $final_alloc[] = ['candidate'=>$cand, 'cadre'=>$ch, 'quota'=>$q, 'type'=>$type];
+
                     $assigned = true;
-                    break 2;
+
+                    break 2; // assigned via quota; so stop checking choices
                 }
             }
         }
+
+        // otherwise, try next choice
     }
 
-    // unassigned
-    if (!$assigned) {
+    if(!$assigned)
+    {
         $final_alloc[] = ['candidate'=>$cand, 'cadre'=>null, 'quota'=>null, 'type'=>null];
     }
 }
 
-// ----------------- SPLIT FOR DISPLAY -----------------
+// SPLIT RESULTS FOR USING IT DURING DISPLAYING DATA
 $final_general = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === 'GENERAL'));
+
 $final_technical = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === 'TECHNICAL'));
+
 $final_unassigned = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === null));
 
-// ----------------- SORT GENERAL & TECHNICAL -----------------
-usort($final_general, fn($a,$b)=>($a['candidate']['general_merit_position'] ?? PHP_INT_MAX) <=> ($b['candidate']['general_merit_position'] ?? PHP_INT_MAX));
-usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][$a['cadre']] ?? PHP_INT_MAX) <=> ($b['candidate']['technical_merit_position'][$b['cadre']] ?? PHP_INT_MAX));
+// Sort general by general merit for nicer output
+usort($final_general, function($a,$b){
+    return ($a['candidate']['general_merit_position'] ?? PHP_INT_MAX) <=> ($b['candidate']['general_merit_position'] ?? PHP_INT_MAX);
+});
 
-// ----------------- HTML & DATA TABLES -----------------
-
-//var_dump($final_general); die;
+// HTML
 
 ?>
 
@@ -161,7 +202,7 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
                             <?= htmlspecialchars($r['quota']) ?>
                         </td>
                         <td class="text-center">
-                            <?php echo $r['candidate']['general_merit_position']; ?>
+                            <?= htmlspecialchars($r['candidate']['general_merit_position'] ?? '-') ?>
                         </td>
                         <td>
                             <?= htmlspecialchars($r['candidate']['choice_list']) ?>
@@ -195,7 +236,7 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
                 </thead>
                 <tbody>
 
-                    <?php $i = 1; foreach( $final_technical as $r ): /*echo '<pre>'; var_dump($r);  echo '<pre>'; die;*/ ?>
+                    <?php $i = 1; foreach( $final_technical as $r ): ?>
                         
                     <tr>
                         <td class="text-center">
@@ -214,7 +255,7 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
                             <?= htmlspecialchars($r['quota']) ?>
                         </td>
                         <td class="text-center">
-                            <?php echo $r['cadre'] . " - "; print( $r['candidate']['technical_merit_position'][$r['cadre']]) ?>
+                            <?= htmlspecialchars($r['candidate']['technical_merit_position'][$r['cadre']] ?? '-') ?>
                         </td>
                         <td>
                             <?= htmlspecialchars($r['candidate']['choice_list']) ?>
