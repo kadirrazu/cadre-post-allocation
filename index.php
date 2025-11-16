@@ -44,9 +44,9 @@ $cadres = [
 $post_available = [
 
     // GENERAL CADRES
-    101 => ['cadre' => 'ADMN', 'total_post' => 15, 'MQ' => 14, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
-    102 => ['cadre' => 'POLC', 'total_post' => 7,  'MQ' => 7,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
-    103 => ['cadre' => 'FRGN', 'total_post' => 12, 'MQ' => 11, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
+    101 => ['cadre' => 'ADMN', 'total_post' => 5, 'MQ' => 3, 'CFF' => 1, 'EM' => 1, 'PHC' => 0],
+    102 => ['cadre' => 'POLC', 'total_post' => 7,  'MQ' => 4,  'CFF' => 1, 'EM' => 1, 'PHC' => 1],
+    103 => ['cadre' => 'FRGN', 'total_post' => 3, 'MQ' => 2, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     104 => ['cadre' => 'ACNT', 'total_post' => 9,  'MQ' => 8,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     105 => ['cadre' => 'TAXN', 'total_post' => 6,  'MQ' => 6,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     106 => ['cadre' => 'CUST', 'total_post' => 14, 'MQ' => 13, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
@@ -72,7 +72,7 @@ $post_available = [
     206 => ['cadre' => 'STTC', 'total_post' => 5,  'MQ' => 5,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     207 => ['cadre' => 'EDUC', 'total_post' => 19, 'MQ' => 18, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     208 => ['cadre' => 'ROME', 'total_post' => 12, 'MQ' => 11, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
-    209 => ['cadre' => 'ENPH', 'total_post' => 3,  'MQ' => 3,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
+    209 => ['cadre' => 'ENPH', 'total_post' => 2,  'MQ' => 1,  'CFF' => 0, 'EM' => 1, 'PHC' => 0],
     210 => ['cadre' => 'ENPW', 'total_post' => 14, 'MQ' => 13, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     211 => ['cadre' => 'ENWD', 'total_post' => 8,  'MQ' => 7,  'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     212 => ['cadre' => 'ARCH', 'total_post' => 6,  'MQ' => 6,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
@@ -181,273 +181,601 @@ $technical_subject_mapping = [
 $candidates = [
     [
         'reg_no' => '20250001',
-        'user_id' => 'USR1A2B3C4',
+        'user_id' => 'USR1A2BC34',
         'cadre_category' => 'GG',
-        'general_merit_position' => 1,
+        'general_merit_position' => 5,
         'technical_merit_position' => null,
-        'choice_list' => 'ADMN POLC FRGN',
+        'choice_list' => 'FRGN ADMN CUST COOP FAMP',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250002',
-        'user_id' => 'USR5D6E7F8',
+        'user_id' => 'USR9X8Y7Z6',
         'cadre_category' => 'TT',
-        'general_merit_position' => 2,
-        'technical_merit_position' => [
-            'ROME' => 2,
-            'ENPH' => 5,
-        ],
-        'choice_list' => 'ROME ENPH ENPW',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['HLTH' => 3, 'ROME' => 7],
+        'choice_list' => 'HLTH ROME EDUC',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250003',
-        'user_id' => 'USR9G0H1I2',
+        'user_id' => 'USR7K6L5M4',
         'cadre_category' => 'GT',
-        'general_merit_position' => 3,
-        'technical_merit_position' => [
-            'HLTH' => 1,
-            'EDUC' => 4,
-        ],
-        'choice_list' => 'HLTH FRGN EDUC ADMN FORE',
+        'general_merit_position' => 12,
+        'technical_merit_position' => ['ENPH' => 5],
+        'choice_list' => 'ADMN ENPH FRGN',
+        'quota' => [
+            'CFF' => false,
+            'EM' => true,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250004',
-        'user_id' => 'USR3J4K5L6',
+        'user_id' => 'USR4P3Q2R1',
         'cadre_category' => 'GG',
-        'general_merit_position' => 4,
+        'general_merit_position' => 2,
         'technical_merit_position' => null,
-        'choice_list' => 'TAXN CUST POST',
+        'choice_list' => 'ADMN FRGN ECON CUST',
+        'quota' => [
+            'CFF' => false,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250005',
-        'user_id' => 'USR7M8N9O0',
+        'user_id' => 'USR5T6U7V8',
         'cadre_category' => 'TT',
-        'general_merit_position' => 5,
-        'technical_merit_position' => [
-            'FDNT' => 1,
-            'ANML' => 3,
-        ],
-        'choice_list' => 'FDNT ANML AGRI',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['TXTL' => 4, 'ENPW' => 9],
+        'choice_list' => 'TXTL ENPW FORE',
+        'quota' => [
+            'CFF' => true,
+            'EM' => true,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250006',
-        'user_id' => 'USR1P2Q3R4',
+        'user_id' => 'USR3A4B5C6',
         'cadre_category' => 'GT',
-        'general_merit_position' => 6,
-        'technical_merit_position' => [
-            'TXTL' => 2,
-            'ROME' => 5,
-        ],
-        'choice_list' => 'TXTL FRGN ROME ADMN POLC',
+        'general_merit_position' => 18,
+        'technical_merit_position' => ['ROME' => 6, 'EDUC' => 10],
+        'choice_list' => 'ROME ADMN EDUC CUST',
+        'quota' => [
+            'CFF' => false,
+            'EM' => true,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250007',
-        'user_id' => 'USR5S6T7U8',
+        'user_id' => 'USR1Z2Y3X4',
         'cadre_category' => 'GG',
-        'general_merit_position' => 7,
+        'general_merit_position' => 9,
         'technical_merit_position' => null,
-        'choice_list' => 'COOP RAIL FOOD',
+        'choice_list' => 'ADMN COOP TRAD INFO',
+        'quota' => null
     ],
     [
         'reg_no' => '20250008',
-        'user_id' => 'USR9V0W1X2',
+        'user_id' => 'USR9Q8W7E6',
         'cadre_category' => 'TT',
-        'general_merit_position' => 8,
-        'technical_merit_position' => [
-            'ENPW' => 3,
-            'ENWD' => 6,
-        ],
-        'choice_list' => 'ENPW ENWD HLTH',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['ENPH' => 2],
+        'choice_list' => 'ENPH EDUC HLTH',
+        'quota' => [
+            'CFF' => false,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250009',
-        'user_id' => 'USR3Y4Z5A6',
+        'user_id' => 'USR8L7M6N5',
         'cadre_category' => 'GT',
-        'general_merit_position' => 9,
-        'technical_merit_position' => [
-            'HLTH' => 2,
-            'FORE' => 5,
-        ],
-        'choice_list' => 'HLTH FRGN FORE TAXN COOP',
+        'general_merit_position' => 14,
+        'technical_merit_position' => ['HLTH' => 8],
+        'choice_list' => 'FRGN HLTH ADMN',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250010',
-        'user_id' => 'USR7B8C9D0',
+        'user_id' => 'USR5C4D3E2',
         'cadre_category' => 'GG',
-        'general_merit_position' => 10,
+        'general_merit_position' => 1,
         'technical_merit_position' => null,
-        'choice_list' => 'INFO ANSA FAMP',
+        'choice_list' => 'FRGN ADMN TAXN',
+        'quota' => null
     ],
     [
         'reg_no' => '20250011',
-        'user_id' => 'USR1E2F3G4',
+        'user_id' => 'USR1G2H3I4',
         'cadre_category' => 'TT',
-        'general_merit_position' => 11,
-        'technical_merit_position' => [
-            'ARCH' => 1,
-            'ENPH' => 4,
-        ],
-        'choice_list' => 'ARCH ENPH EDUC',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['AGRI' => 5, 'FISH' => 11],
+        'choice_list' => 'AGRI FISH FORE',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250012',
-        'user_id' => 'USR5H6I7J8',
+        'user_id' => 'USR9B8C7D6',
         'cadre_category' => 'GT',
-        'general_merit_position' => 12,
-        'technical_merit_position' => [
-            'ROME' => 3,
-            'TXTL' => 6,
-        ],
-        'choice_list' => 'ROME TRAD TXTL ADMN FRGN',
+        'general_merit_position' => 6,
+        'technical_merit_position' => ['ENPW' => 7],
+        'choice_list' => 'ENPW ADMN RAIL',
+        'quota' => [
+            'CFF' => false,
+            'EM' => true,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250013',
-        'user_id' => 'USR9K0L1M2',
+        'user_id' => 'USR7R6S5T4',
         'cadre_category' => 'GG',
-        'general_merit_position' => 13,
+        'general_merit_position' => 10,
         'technical_merit_position' => null,
-        'choice_list' => 'ACNT TAXN CUST',
+        'choice_list' => 'ADMN INFO TRAD',
+        'quota' => [
+            'CFF' => false,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250014',
-        'user_id' => 'USR3N4O5P6',
+        'user_id' => 'USR2M3N4O5',
         'cadre_category' => 'TT',
-        'general_merit_position' => 14,
-        'technical_merit_position' => [
-            'FDNT' => 2,
-            'ANML' => 4,
-        ],
-        'choice_list' => 'FDNT ANML HLTH',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['EDUC' => 12],
+        'choice_list' => 'EDUC HLTH ENPH',
+        'quota' => null
     ],
     [
         'reg_no' => '20250015',
-        'user_id' => 'USR7Q8R9S0',
+        'user_id' => 'USR4W3E2R1',
         'cadre_category' => 'GT',
-        'general_merit_position' => 15,
-        'technical_merit_position' => [
-            'ENWD' => 2,
-            'FORE' => 3,
-        ],
-        'choice_list' => 'ENWD FRGN FORE ADMN EDUC',
+        'general_merit_position' => 22,
+        'technical_merit_position' => ['TXTL' => 9],
+        'choice_list' => 'TXTL ADMN COOP',
+        'quota' => [
+            'CFF' => false,
+            'EM' => true,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250016',
-        'user_id' => 'USR1T2U3V4',
+        'user_id' => 'USR6H5J4K3',
         'cadre_category' => 'GG',
-        'general_merit_position' => 16,
+        'general_merit_position' => 4,
         'technical_merit_position' => null,
-        'choice_list' => 'STAT ECON TRAD',
+        'choice_list' => 'FRGN ADMN RAil',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250017',
-        'user_id' => 'USR5W6X7Y8',
+        'user_id' => 'USR8Q7W6E5',
         'cadre_category' => 'TT',
-        'general_merit_position' => 17,
-        'technical_merit_position' => [
-            'ENPH' => 1,
-            'ENPW' => 5,
-        ],
-        'choice_list' => 'ENPH ENPW EDUC',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['ROME' => 11],
+        'choice_list' => 'ROME ENPW ENWD',
+        'quota' => [
+            'CFF' => false,
+            'EM' => true,
+            'PHC' => false
+        ]
     ],
     [
         'reg_no' => '20250018',
-        'user_id' => 'USR9Z0A1B2',
+        'user_id' => 'USR2V3B4N5',
         'cadre_category' => 'GT',
-        'general_merit_position' => 18,
-        'technical_merit_position' => [
-            'HLTH' => 3,
-            'ROME' => 6,
-        ],
-        'choice_list' => 'HLTH ADMN ROME POLC EDUC',
+        'general_merit_position' => 11,
+        'technical_merit_position' => ['FORE' => 4],
+        'choice_list' => 'FORE ADMN FAMP',
+        'quota' => [
+            'CFF' => false,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
     [
         'reg_no' => '20250019',
-        'user_id' => 'USR3C4D5E6',
+        'user_id' => 'USR1C2V3B4',
         'cadre_category' => 'GG',
-        'general_merit_position' => 19,
+        'general_merit_position' => 20,
         'technical_merit_position' => null,
-        'choice_list' => 'FAMP COOP FOOD',
+        'choice_list' => 'ADMN TRAD INFO',
+        'quota' => null
     ],
     [
         'reg_no' => '20250020',
-        'user_id' => 'USR7F8G9H0',
+        'user_id' => 'USR9P8O7I6',
         'cadre_category' => 'TT',
-        'general_merit_position' => 20,
-        'technical_merit_position' => [
-            'TXTL' => 1,
-            'ROME' => 4,
-        ],
-        'choice_list' => 'TXTL ROME ENWD',
+        'general_merit_position' => null,
+        'technical_merit_position' => ['ARCH' => 3],
+        'choice_list' => 'ARCH ENWD ENPW',
+        'quota' => [
+            'CFF' => true,
+            'EM' => false,
+            'PHC' => true
+        ]
     ],
 ];
+
 
 
 // Assume you have these arrays already
 // $candidates, $cadres
 
-$GEN = [];
-$TEC = [];
+$GEN = [];  
+$TEC = [];  
 
-// Flatten short codes for quick lookup
-$general_short_codes = array_keys($cadres['GENERAL']);
-$technical_short_codes = array_keys($cadres['TECHNICAL']);
+$general_cadres  = array_keys($cadres['GENERAL']);
+$technical_cadres = array_keys($cadres['TECHNICAL']);
 
+
+// MAIN LOOP — SPLIT CANDIDATES
 foreach ($candidates as $candidate) {
-    // Split candidate's choice list by space
-    $choices = explode(' ', $candidate['choice_list']);
 
-    // Initialize arrays for separated choices
-    $gen_choices = [];
-    $tec_choices = [];
+    $choices = explode(" ", trim($candidate['choice_list']));
 
-    // Loop through each choice
-    foreach ($choices as $choice) {
-        if (in_array($choice, $general_short_codes)) {
-            $gen_choices[] = $choice;
-        } elseif (in_array($choice, $technical_short_codes)) {
-            $tec_choices[] = $choice;
+    $general_choices = [];
+    $technical_choices = [];
+
+    foreach ($choices as $c) {
+        if (in_array($c, $general_cadres)) {
+            $general_choices[] = $c;
+        } elseif (in_array($c, $technical_cadres)) {
+            $technical_choices[] = $c;
         }
     }
 
-    // Place candidate in GEN array if they have general choices
-    if (!empty($gen_choices)) {
+    // GG → Goes to GEN only
+    if ($candidate['cadre_category'] === 'GG') {
         $GEN[] = [
-            'reg_no' => $candidate['reg_no'],
-            'user_id' => $candidate['user_id'],
-            'cadre_category' => $candidate['cadre_category'],
-            'general_merit_position' => $candidate['general_merit_position'],
-            'choice_list' => implode(' ', $gen_choices),
+            'candidate' => $candidate,
+            'choices'   => $general_choices,
+            'quota'     => $candidate['quota'] ?? []
         ];
+        continue;
     }
 
-    // Place candidate in TEC array if they have technical choices
-    if (!empty($tec_choices)) {
+    // TT → Goes to TEC only
+    if ($candidate['cadre_category'] === 'TT') {
         $TEC[] = [
-            'reg_no' => $candidate['reg_no'],
-            'user_id' => $candidate['user_id'],
-            'cadre_category' => $candidate['cadre_category'],
-            'general_merit_position' => $candidate['general_merit_position'],
-            'technical_merit_position' => $candidate['technical_merit_position'] ?? null,
-            'choice_list' => implode(' ', $tec_choices),
+            'candidate' => $candidate,
+            'choices'   => $technical_choices,
+            'quota'     => $candidate['quota'] ?? []
         ];
+        continue;
+    }
+
+    // GT → Split into GEN + TEC entries
+    if ($candidate['cadre_category'] === 'GT') {
+
+        if (!empty($general_choices)) {
+            $GEN[] = [
+                'candidate' => $candidate,
+                'choices'   => $general_choices,
+                'quota'     => $candidate['quota'] ?? []
+            ];
+        }
+
+        if (!empty($technical_choices)) {
+            $TEC[] = [
+                'candidate' => $candidate,
+                'choices'   => $technical_choices,
+                'quota'     => $candidate['quota'] ?? []
+            ];
+        }
     }
 }
 
-// Sort GEN array by general_merit_position ascending
+
+
+// SORTING GEN → by general_merit_position
 usort($GEN, function($a, $b) {
-    return $a['general_merit_position'] <=> $b['general_merit_position'];
+    return $a['candidate']['general_merit_position'] <=> $b['candidate']['general_merit_position'];
 });
 
-// Sort TEC array by general_merit_position ascending
+
+
+// SORTING TEC → by technical merit → fallback general merit
 usort($TEC, function($a, $b) {
-    return $a['general_merit_position'] <=> $b['general_merit_position'];
+
+    $a_bestTech = !empty($a['candidate']['technical_merit_position'])
+        ? min($a['candidate']['technical_merit_position'])
+        : null;
+
+    $b_bestTech = !empty($b['candidate']['technical_merit_position'])
+        ? min($b['candidate']['technical_merit_position'])
+        : null;
+
+    if ($a_bestTech !== null && $b_bestTech !== null) {
+        return $a_bestTech <=> $b_bestTech;
+    }
+
+    return $a['candidate']['general_merit_position'] <=> $b['candidate']['general_merit_position'];
 });
+
 
 // Optional: print result
+echo "<h2>General Separation:</h2><br>";
 echo '<pre>';
 print_r($GEN);
 echo '</pre>';
 
+echo "<br><br><h2>Technical Separation:</h2><br>";
 echo '<pre>';
 print_r($TEC);
 echo '</pre>';
+
+
+$general_placement_result = [];
+$post_remaining = $post_available; // local working copy
+
+foreach ($GEN as $entry) {
+
+    $candidate = $entry['candidate'];
+    $choices   = $entry['choices'];
+    $quotaList = $entry['quota'];  // ordered: CFF → EM → PHC
+
+    $assigned = false;
+
+    foreach ($choices as $cadreShort) {
+
+        // Resolve cadre short → code
+        $cadreCode = null;
+        foreach ($cadres['GENERAL'] as $short => $info) {
+            if ($short === $cadreShort) {
+                $cadreCode = $info['code'];
+                break;
+            }
+        }
+        if (!$cadreCode) continue;
+
+        /*
+        ===============================================================
+        STEP 1 — MERIT FIRST (MQ)
+        ===============================================================
+        */
+        if ($post_remaining[$cadreCode]['MQ'] > 0) {
+            
+            // MERIT seat available → assign immediately
+            $post_remaining[$cadreCode]['MQ']--;
+            $assigned = true;
+
+            $general_placement_result[] = [
+                'candidate' => $candidate,
+                'cadre'     => $cadreShort,
+                'quota'     => 'MERIT'
+            ];
+
+            break; // stop processing candidate
+        }
+
+        /*
+        ===============================================================
+        STEP 2 — TRY QUOTA (CFF → EM → PHC)
+        Only executed when MQ seat is NOT available
+        ===============================================================
+        */
+        foreach (['CFF', 'EM', 'PHC'] as $quotaType) {
+
+            if (empty($quotaList[$quotaType])) {
+                continue; // candidate not eligible for this quota
+            }
+
+            // CFF
+            if ($quotaType === 'CFF' && $post_remaining[$cadreCode]['CFF'] > 0) {
+                $post_remaining[$cadreCode]['CFF']--;
+                $assigned = true;
+                $general_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'CFF'
+                ];
+                break 2;
+            }
+
+            // EM
+            if ($quotaType === 'EM' && $post_remaining[$cadreCode]['EM'] > 0) {
+                $post_remaining[$cadreCode]['EM']--;
+                $assigned = true;
+                $general_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'EM'
+                ];
+                break 2;
+            }
+
+            // PHC
+            if ($quotaType === 'PHC' && $post_remaining[$cadreCode]['PHC'] > 0) {
+                $post_remaining[$cadreCode]['PHC']--;
+                $assigned = true;
+                $general_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'PHC'
+                ];
+                break 2;
+            }
+        }
+
+
+        // If neither MQ nor quota works → try next cadre choice
+    }
+
+    /*
+    ===============================================================
+    STEP 3 — NOT ASSIGNED
+    ===============================================================
+    */
+    if (!$assigned) {
+        $general_placement_result[] = [
+            'candidate' => $candidate,
+            'cadre'     => null,
+            'quota'     => null,
+            'status'    => 'NOT_ASSIGNED'
+        ];
+    }
+}
+
+
+echo "<br><br><h2>General Placement:</h2><br>";
+echo '<pre>';
+print_r($general_placement_result);
+echo '</pre>';
+
+
+$technical_placement_result = [];
+$tech_post_remaining = $post_available;   // local working copy
+
+foreach ($TEC as $entry) {
+
+    $candidate   = $entry['candidate'];
+    $choices     = $entry['choices'];     // technical cadre short codes
+    $quotaList   = $entry['quota'];       // {CFF=>true|false,...}
+    $techMerit   = $candidate['technical_merit_position'];
+
+    $assigned = false;
+
+    // Sort technical choices by candidate's technical merit ranking (ascending)
+    usort($choices, function($a, $b) use ($techMerit) {
+        $rankA = $techMerit[$a] ?? PHP_INT_MAX;
+        $rankB = $techMerit[$b] ?? PHP_INT_MAX;
+        return $rankA <=> $rankB;
+    });
+
+    foreach ($choices as $cadreShort) {
+
+        /*
+        ==========================================================
+        Resolve Technical Cadre Short → Cadre Code
+        ==========================================================
+        */
+        $cadreCode = null;
+        foreach ($cadres['TECHNICAL'] as $short => $info) {
+            if ($short === $cadreShort) {
+                $cadreCode = $info['code'];
+                break;
+            }
+        }
+        if (!$cadreCode) continue;
+
+        /*
+        ==========================================================
+        STEP 1 — DIRECT TECHNICAL MERIT (equivalent to MQ)
+        ==========================================================
+        */
+
+        // If candidate has a rank for this cadre and MQ available
+        if (isset($techMerit[$cadreShort]) && $tech_post_remaining[$cadreCode]['MQ'] > 0) {
+
+            $tech_post_remaining[$cadreCode]['MQ']--;
+            $assigned = true;
+
+            $technical_placement_result[] = [
+                'candidate' => $candidate,
+                'cadre'     => $cadreShort,
+                'quota'     => 'MERIT'
+            ];
+
+            break; // stop processing this candidate
+        }
+
+        /*
+        ==========================================================
+        STEP 2 — If MQ full, try QUOTA (CFF → EM → PHC)
+        ==========================================================
+        */
+        foreach (['CFF', 'EM', 'PHC'] as $quotaType) {
+
+            // Candidate must be eligible for the quota
+            if (empty($quotaList[$quotaType])) {
+                continue;
+            }
+
+            if ($quotaType === 'CFF' && $tech_post_remaining[$cadreCode]['CFF'] > 0) {
+                $tech_post_remaining[$cadreCode]['CFF']--;
+                $assigned = true;
+                $technical_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'CFF'
+                ];
+                break 2;
+            }
+
+            if ($quotaType === 'EM' && $tech_post_remaining[$cadreCode]['EM'] > 0) {
+                $tech_post_remaining[$cadreCode]['EM']--;
+                $assigned = true;
+                $technical_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'EM'
+                ];
+                break 2;
+            }
+
+            if ($quotaType === 'PHC' && $tech_post_remaining[$cadreCode]['PHC'] > 0) {
+                $tech_post_remaining[$cadreCode]['PHC']--;
+                $assigned = true;
+                $technical_placement_result[] = [
+                    'candidate' => $candidate,
+                    'cadre'     => $cadreShort,
+                    'quota'     => 'PHC'
+                ];
+                break 2;
+            }
+        }
+
+        // If not assigned, try next technical choice
+    }
+
+    /*
+    ==========================================================
+    STEP 3 — NOT ASSIGNED
+    ==========================================================
+    */
+    if (!$assigned) {
+        $technical_placement_result[] = [
+            'candidate' => $candidate,
+            'cadre'     => null,
+            'quota'     => null,
+            'status'    => 'NOT_ASSIGNED'
+        ];
+    }
+}
+
+echo "<br><br><h2>Technical Placement:</h2><br>";
+echo '<pre>';
+print_r($technical_placement_result);
+echo '</pre>';
+
+
 
