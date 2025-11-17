@@ -3,103 +3,7 @@
 include "cadre-list.php";
 include "posts.php";
 include "candidates.php";
-
-// ----------------- PREP -----------------
-
-// index posts by short cadre name for O(1) access
-$postsByCadre = [];
-foreach ($post_available as $code => $p) {
-    $postsByCadre[$p['cadre']] = $code;
-}
-
-// normalize candidate choices upfront
-foreach ($candidates as &$cand) {
-    if (isset($cand['choice_list'])) {
-        $cand['choices'] = array_map('strtoupper', array_filter(array_map('trim', explode(' ', $cand['choice_list']))));
-    } else {
-        $cand['choices'] = [];
-    }
-}
-unset($cand);
-
-// copy of remaining posts
-$post_remaining = $post_available;
-
-// helper: primary merit for sorting
-function primary_merit($cand) {
-    if (!empty($cand['general_merit_position'])) return $cand['general_merit_position'];
-    if (!empty($cand['technical_merit_position']) && is_array($cand['technical_merit_position'])) {
-        return min($cand['technical_merit_position']);
-    }
-    return PHP_INT_MAX;
-}
-
-// ----------------- SORT -----------------
-usort($candidates, fn($a,$b) => primary_merit($a) <=> primary_merit($b));
-
-// ----------------- ALLOCATION -----------------
-$final_alloc = [];
-
-foreach ($candidates as $cand) {
-
-    $assigned = false;
-
-    foreach ($cand['choices'] as $ch) {
-
-        // determine type
-        if (isset($general_cadres['GENERAL'][$ch])) $type = 'GENERAL';
-        elseif (isset($technical_cadres['TECHNICAL'][$ch])) $type = 'TECHNICAL';
-        else continue;
-
-        // check tech merit eligibility
-        if ($type === 'TECHNICAL') {
-            if (!isset($cand['technical_merit_position'][$ch])) continue;
-        }
-
-        // find post code
-        if (!isset($postsByCadre[$ch])) continue;
-        $postCode = $postsByCadre[$ch];
-
-        // MERIT allocation
-        $canUseMerit = ($post_remaining[$postCode]['MQ'] ?? 0) > 0;
-        if ($canUseMerit) {
-            $post_remaining[$postCode]['MQ']--;
-            $final_alloc[] = ['candidate'=>$cand, 'cadre'=>$ch, 'quota'=>'MERIT', 'type'=>$type];
-            $assigned = true;
-            break;
-        }
-
-        // QUOTA allocation
-        if (!empty($cand['quota']) && is_array($cand['quota'])) {
-            foreach (['CFF','EM','PHC'] as $q) {
-                if (!empty($cand['quota'][$q]) && ($post_remaining[$postCode][$q] ?? 0) > 0) {
-                    $post_remaining[$postCode][$q]--;
-                    $final_alloc[] = ['candidate'=>$cand, 'cadre'=>$ch, 'quota'=>$q, 'type'=>$type];
-                    $assigned = true;
-                    break 2;
-                }
-            }
-        }
-    }
-
-    // unassigned
-    if (!$assigned) {
-        $final_alloc[] = ['candidate'=>$cand, 'cadre'=>null, 'quota'=>null, 'type'=>null];
-    }
-}
-
-// ----------------- SPLIT FOR DISPLAY -----------------
-$final_general = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === 'GENERAL'));
-$final_technical = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === 'TECHNICAL'));
-$final_unassigned = array_values(array_filter($final_alloc, fn($r)=> $r['type'] === null));
-
-// ----------------- SORT GENERAL & TECHNICAL -----------------
-usort($final_general, fn($a,$b)=>($a['candidate']['general_merit_position'] ?? PHP_INT_MAX) <=> ($b['candidate']['general_merit_position'] ?? PHP_INT_MAX));
-usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][$a['cadre']] ?? PHP_INT_MAX) <=> ($b['candidate']['technical_merit_position'][$b['cadre']] ?? PHP_INT_MAX));
-
-// ----------------- HTML & DATA TABLES -----------------
-
-//var_dump($final_general); die;
+include "data-processing.php";
 
 ?>
 
@@ -269,7 +173,7 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
 
         <div class="col-12">
 
-            <h4  class="mb-2">Raw Candidate Table - Before Allocation</h4>
+            <h4  class="mx-3">Raw Candidate Table - Before Allocation</h4>
 
             <table id="tblUn" class="table table-striped table-bordered">
 
@@ -278,12 +182,15 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
                         <th class="text-center">#</th>
                         <th class="text-center">Reg No</th>
                         <th class="text-center">Category</th>
+                        <th class="text-center">Merit Position (General)</th>
+                        <th class="text-center">Merit Position (Tech)</th>
+                        <th class="text-center">Quota</th>
                         <th class="text-center">Choices</th>
                     </tr>
                 </thead>
                 <tbody>
 
-                <?php $i = 1; foreach( $candidates as $r ): ?>
+                <?php $i = 1; foreach( $candidates as $r ):  ?>
 
                 <tr>
                     <td class="text-center">
@@ -294,6 +201,37 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
                     </td>
                     <td class="text-center">
                         <?= htmlspecialchars($r['cadre_category']) ?>
+                    </td>
+                    <td class="text-center">
+                        <?= htmlspecialchars($r['general_merit_position'] ?? '-') ?>
+                    </td>
+                    <td class="text-center">
+                        <?php 
+                            if(isset($r['technical_merit_position']))
+                            {
+                                foreach( $r['technical_merit_position'] as $key => $value ){
+                                    print $key .'-'. $value . '<br>';
+                                }
+                            }
+                        ?>
+                    </td>
+                    <td class="text-center">
+                        <?php 
+                            if(isset($r['quota']))
+                            {
+                                foreach( $r['quota'] as $key => $value ){
+                                    if($key == 'CFF' && $value == 1){
+                                        echo $key . '<br>';
+                                    }
+                                    else if($key == 'EM' && $value == 1){
+                                       echo $key . '<br>'; 
+                                    }
+                                    else if($key == 'PHC' && $value == 1){
+                                        echo $key . '<br>';
+                                    }
+                                }
+                            }
+                        ?>
                     </td>
                     <td>
                         <?= htmlspecialchars($r['choice_list']) ?>
@@ -310,10 +248,10 @@ usort($final_technical, fn($a,$b)=>($a['candidate']['technical_merit_position'][
     </div>
 
     <div class="mt-4">
-        <h6>Post remaining snapshot (for debuging)</h6>
+        <!--<h6>Post remaining snapshot (for debuging)</h6>
         <pre>
-            <?php echo htmlspecialchars( json_encode($post_remaining, JSON_PRETTY_PRINT) ); ?>
-        </pre>
+            <?php //echo htmlspecialchars( json_encode($post_remaining, JSON_PRETTY_PRINT) ); ?>
+        </pre>-->
     </div>
 
     </div>
