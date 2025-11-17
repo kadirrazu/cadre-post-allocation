@@ -3,7 +3,7 @@
 $post_available = [
     101 => ['cadre' => 'ADMN', 'total_post' => 3, 'MQ' => 2, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     102 => ['cadre' => 'POLC', 'total_post' => 3,  'MQ' => 2,  'CFF' => 0, 'EM' => 1, 'PHC' => 0],
-    103 => ['cadre' => 'FRGN', 'total_post' => 3, 'MQ' => 2, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
+    103 => ['cadre' => 'FRGN', 'total_post' => 2, 'MQ' => 2, 'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     105 => ['cadre' => 'TAXN', 'total_post' => 2,  'MQ' => 2,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     106 => ['cadre' => 'CUST', 'total_post' => 2, 'MQ' => 2, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
     107 => ['cadre' => 'POST', 'total_post' => 1,  'MQ' => 1,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
@@ -23,5 +23,5 @@ $post_available = [
     210 => ['cadre' => 'ENPW', 'total_post' => 2, 'MQ' => 2, 'CFF' => 0, 'EM' => 0, 'PHC' => 0],
     212 => ['cadre' => 'ARCH', 'total_post' => 4,  'MQ' => 2,  'CFF' => 1, 'EM' => 1, 'PHC' => 0],
     213 => ['cadre' => 'FORE', 'total_post' => 2, 'MQ' => 1, 'CFF' => 1, 'EM' => 0, 'PHC' => 0],
-    214 => ['cadre' => 'TXTL', 'total_post' => 9,  'MQ' => 8,  'CFF' => 1, 'EM' => 0, 'PHC' => 0],
+    214 => ['cadre' => 'TXTL', 'total_post' => 1,  'MQ' => 1,  'CFF' => 0, 'EM' => 0, 'PHC' => 0],
 ];

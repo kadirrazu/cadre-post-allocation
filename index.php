@@ -40,7 +40,7 @@ include "data-processing.php";
                         <th class="text-center">Category</th>
                         <th class="text-center">Cadre</th>
                         <th class="text-center">Quota</th>
-                        <th class="text-center">Gen Merit</th>
+                        <th class="text-center">Gen Merit Position</th>
                         <th class="text-center">Choices</th>
                     </tr>
                 </thead>

@@ -58,7 +58,7 @@ $candidates = [
         'user_id' => 'USR5T6U7V8',
         'cadre_category' => 'TT',
         'general_merit_position' => null,
-        'technical_merit_position' => ['TXTL' => 4, 'ENPH' => 9],
+        'technical_merit_position' => ['TXTL' => 9, 'ENPH' => 9],
         'choice_list' => 'ENPH TXTL FORE',
         'quota' => [
             'CFF' => false,
@@ -105,9 +105,9 @@ $candidates = [
         'reg_no' => '20250009',
         'user_id' => 'USR8L7M6N5',
         'cadre_category' => 'GT',
-        'general_merit_position' => 3,
-        'technical_merit_position' => ['HLTH' => 8],
-        'choice_list' => 'FRGN ADMN HLTH',
+        'general_merit_position' => 35,
+        'technical_merit_position' => ['TXTL' => 8],
+        'choice_list' => 'FRGN ADMN TXTL',
         'quota' => [
             'CFF' => true,
             'EM' => false,
