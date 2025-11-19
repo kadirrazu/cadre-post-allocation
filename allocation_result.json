@@ -1,0 +1,130 @@
+[
+    {
+        "reg_no": 20250001,
+        "user_id": "USR1A2BC34",
+        "cadre_code": 101,
+        "cadre_abbr": "ADMN",
+        "quota": "CFF",
+        "choice_rank": 2
+    },
+    {
+        "reg_no": 20250003,
+        "user_id": "USR7K6L5M4",
+        "cadre_code": 209,
+        "cadre_abbr": "ENPH",
+        "quota": "EM",
+        "choice_rank": 2
+    },
+    {
+        "reg_no": 20250004,
+        "user_id": "USR4P3Q2R1",
+        "cadre_code": 101,
+        "cadre_abbr": "ADMN",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250005,
+        "user_id": "USR5T6U7V8",
+        "cadre_code": 214,
+        "cadre_abbr": "TXTL",
+        "quota": "MQ",
+        "choice_rank": 2
+    },
+    {
+        "reg_no": 20250006,
+        "user_id": "USR3A4B5C6",
+        "cadre_code": 208,
+        "cadre_abbr": "ROME",
+        "quota": "MQ",
+        "choice_rank": 2
+    },
+    {
+        "reg_no": 20250007,
+        "user_id": "USR1Z2Y3X4",
+        "cadre_code": 112,
+        "cadre_abbr": "INFO",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250009,
+        "user_id": "USR8L7M6N5",
+        "cadre_code": 214,
+        "cadre_abbr": "TXTL",
+        "quota": "MQ",
+        "choice_rank": 3
+    },
+    {
+        "reg_no": 20250010,
+        "user_id": "USR5C4D3E2",
+        "cadre_code": 103,
+        "cadre_abbr": "FRGN",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250011,
+        "user_id": "USR1G2H3I4",
+        "cadre_code": 201,
+        "cadre_abbr": "HLTH",
+        "quota": "MQ",
+        "choice_rank": 2
+    },
+    {
+        "reg_no": 20250012,
+        "user_id": "USR9B8C7D6",
+        "cadre_code": 210,
+        "cadre_abbr": "ENPW",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250013,
+        "user_id": "USR7R6S5T4",
+        "cadre_code": 101,
+        "cadre_abbr": "ADMN",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250015,
+        "user_id": "USR4W3E2R1",
+        "cadre_code": 209,
+        "cadre_abbr": "ENPH",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250016,
+        "user_id": "USR6H5J4K3",
+        "cadre_code": 103,
+        "cadre_abbr": "FRGN",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250017,
+        "user_id": "USR8Q7W6E5",
+        "cadre_code": 208,
+        "cadre_abbr": "ROME",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250018,
+        "user_id": "USR2V3B4N5",
+        "cadre_code": 207,
+        "cadre_abbr": "EDUC",
+        "quota": "MQ",
+        "choice_rank": 1
+    },
+    {
+        "reg_no": 20250020,
+        "user_id": "USR9P8O7I6",
+        "cadre_code": 210,
+        "cadre_abbr": "ENPW",
+        "quota": "MQ",
+        "choice_rank": 3
+    }
+]

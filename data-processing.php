@@ -1,59 +1,39 @@
 <?php
-/**
- * BPSC Cadre Post Allocation - Raw PHP Implementation
- *
- * Assumptions:
- * - Input arrays are provided in three included files:
- *     - candidates.php   -> $candidates
- *     - cadre-list.php   -> $general_cadres (associative by abbreviation)
- *     - posts.php        -> $post_available (keyed by cadre code)
- * - Each candidate has:
- *     - 'reg_no', 'cadre_category' (GG, TT, GT ...),
- *     - 'general_merit_position' (int|null),
- *     - 'global_tech_merit' (int|null),
- *     - 'technical_merit_position' (assoc or null),
- *     - 'choice_list' (string like "FRGN ADMN RAIL"),
- *     - 'quota' (assoc with 'CFF','EM','PHC' boolean flags)
- * - Quota allocation preference (when candidate has multiple quotas): CFF -> EM -> PHC -> MQ
- *
- * Algorithm overview:
- * 1. Load data and build mappings (abbr -> code, code -> abbr/name).
- * 2. Build per-cadre queues (for visibility) but perform allocation in candidate-centric order.
- * 3. Candidate-centric allocation: produce a global ordering of candidates by merit (use general_merit_position when available, else global_tech_merit).
- * 4. For each candidate in that order, try to allocate them to their highest-ranked choice where:
- *      - they are eligible for that cadre (technical candidates must have passed that technical subject),
- *      - an appropriate quota seat exists (if they have a quota type and a seat remains for that quota in that cadre) or a MQ seat exists.
- * 5. Mark allocations and decrement post counts.
- * 6. Produce allocation results and remaining posts.
- *
- * This implementation is intentionally straightforward and well-commented for clarity.
- */
 
 // --- Build mappings ---
 $abbr_to_code = [];
 $code_to_abbr = [];
 $code_to_name = [];
 
-foreach ($post_available as $code => $info) {
+foreach ($post_available as $code => $info) 
+{
+
     $abbr = $info['cadre'];
     $abbr_to_code[$abbr] = $code;
     $code_to_abbr[$code] = $abbr;
+
     // try to find a pretty name from $general_cadres if present
-    foreach ($general_cadres as $gkey => $list) {
+    foreach ($general_cadres as $gkey => $list) 
+    {
         if (isset($list[$abbr])) {
             $code_to_name[$code] = $list[$abbr]['name'];
             break;
         }
     }
+
     if (!isset($code_to_name[$code])) {
         $code_to_name[$code] = $abbr;
     }
+
 }
 
 // Detect which cadres are 'technical' by checking if they appear inside any candidate's technical_merit_position
 $technical_abbrs = [];
-foreach ($candidates as $cand) {
-    if (!empty($cand['technical_merit_position']) && is_array($cand['technical_merit_position'])) {
+
+foreach ($candidates as $cand)
+{
+    if (!empty($cand['technical_merit_position']) && is_array($cand['technical_merit_position']))
+    {
         foreach ($cand['technical_merit_position'] as $tech_abbr => $_pos) {
             $technical_abbrs[$tech_abbr] = true;
         }
@@ -62,6 +42,7 @@ foreach ($candidates as $cand) {
 
 // Create per-cadre queues (for visibility / debugging)
 $queues = [];
+
 foreach ($post_available as $code => $info) {
     $queues[$code] = [];
 }
@@ -79,9 +60,12 @@ function parse_choices($choice_str) {
 
 // Build overall candidate ordering key (for allocation order) and populate queues
 $allocation_candidates = []; // will contain index => candidate copy + priority_score
-foreach ($candidates as $idx => $cand) {
+
+foreach ($candidates as $idx => $cand)
+{
     // Determine ordering score: prefer general_merit_position (if exists), otherwise use global_tech_merit
     $order_score = null;
+    
     if (!empty($cand['general_merit_position'])) {
         $order_score = intval($cand['general_merit_position']);
     } elseif (!empty($cand['global_tech_merit'])) {
@@ -273,4 +257,32 @@ foreach ($remaining as $code => $rem) {
 // var_export($queues);
 
 // End of implementation
+
+
+
+echo '<pre>';
+print_r( $alloc_list );
+echo '<pre>';
+
+// Print summary
+/*
+
+echo "Iterations run: $iteration\<br>";
+echo "Total candidates: " . count($candidate_index) . "\<br>";
+echo "Total finalized allocations: " . count($final_allocations) . "\<br>\<br>";
+foreach ($final_allocations as $fa) {
+    echo "Reg: {$fa['reg_no']} | User: {$fa['user_id']} | Cadre: {$fa['cadre_abbr']} ({$fa['cadre_code']}) | Quota: {$fa['quota']} | Choice#: {$fa['choice_rank']}n";
+}
+
+echo "Remaining posts by cadre code:";
+
+foreach ($remaining as $code => $rem) {
+    $abbr = $code_to_abbr[$code] ?? $code;
+    echo "{$abbr} ({$code}): MQ={$rem['MQ']}, CFF={$rem['CFF']}, EM={$rem['EM']}, PHC={$rem['PHC']}, allocated={$rem['allocated']}<br>";
+}
+file_put_contents(__DIR__ . '/allocation_result.json', json_encode($final_allocations, JSON_PRETTY_PRINT));
+echo "Saved allocation_result.json";
+
+*/
+
 die();
