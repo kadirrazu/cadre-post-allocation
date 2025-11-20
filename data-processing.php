@@ -40,249 +40,399 @@ foreach ($candidates as $cand)
     }
 }
 
-// Create per-cadre queues (for visibility / debugging)
-$queues = [];
+$technicalCadres = array_column($technical_cadres['TECHNICAL'], 'abbr');
 
-foreach ($post_available as $code => $info) {
-    $queues[$code] = [];
-}
+$allocationQueues = [];
+$finalAllocated = [];
+$logs = [];
 
-// Helper: parse choice list string into array of abbreviations
-function parse_choices($choice_str) {
-    $parts = preg_split('/\s+/', trim($choice_str));
+/**
+ * Convert technical merit to readable format:
+ *   [ 'EEE' => 54, 'CIV' => 83 ]
+ */
+function formatTechnicalMerit($candidate) {
+    if (!isset($candidate['technical_merit_position'])) return [];
+
     $out = [];
-    foreach ($parts as $p) {
-        $p = trim($p);
-        if ($p !== '') $out[] = $p;
+    foreach ($candidate['technical_merit_position'] as $key => $val) {
+        $out[$key] = $val;
     }
     return $out;
 }
 
-// Build overall candidate ordering key (for allocation order) and populate queues
-$allocation_candidates = []; // will contain index => candidate copy + priority_score
-
-foreach ($candidates as $idx => $cand)
-{
-    // Determine ordering score: prefer general_merit_position (if exists), otherwise use global_tech_merit
-    $order_score = null;
-    
-    if (!empty($cand['general_merit_position'])) {
-        $order_score = intval($cand['general_merit_position']);
-    } elseif (!empty($cand['global_tech_merit'])) {
-        // Note: smaller global_tech_merit is better? We'll treat smaller = better
-        $order_score = intval($cand['global_tech_merit']);
-    } else {
-        // fallback: use a large number so they come last
-        $order_score = PHP_INT_MAX - $idx;
-    }
-
-    $allocation_candidates[] = ['candidate' => $cand, 'order_score' => $order_score, 'orig_index' => $idx];
-
-    // Now build per-cadre queues for each choice
-    $choices = parse_choices($cand['choice_list']);
-    $choice_rank = 0;
-    foreach ($choices as $choice_abbr) {
-        $choice_rank++;
-        if (!isset($abbr_to_code[$choice_abbr])) continue; // choice not in posts
-        $code = $abbr_to_code[$choice_abbr];
-        // Eligibility checks
-        $is_technical = isset($technical_abbrs[$choice_abbr]);
-        $eligible = true;
-        $score_for_sort = null;
-
-        if ($is_technical) {
-            // For technical cadres, the candidate must have passed (technical_merit_position must list this abbrev)
-            if (empty($cand['technical_merit_position']) || !is_array($cand['technical_merit_position']) || !isset($cand['technical_merit_position'][$choice_abbr])) {
-                $eligible = false;
-            } else {
-                // Use technical merit ordering; if candidate has 'global_tech_merit' use that as primary sort key
-                $score_for_sort = isset($cand['global_tech_merit']) ? intval($cand['global_tech_merit']) : intval($cand['technical_merit_position'][$choice_abbr]);
-            }
-        } else {
-            // General cadre requires general_merit_position
-            if (empty($cand['general_merit_position'])) {
-                $eligible = false;
-            } else {
-                $score_for_sort = intval($cand['general_merit_position']);
-            }
-        }
-
-        if (!$eligible) continue;
-
-        // Push into queue for this cadre
-        $queues[$code][] = [
-            'reg_no' => $cand['reg_no'],
-            'user_id' => $cand['user_id'],
-            'score' => $score_for_sort,
-            'choice_rank' => $choice_rank,
-            'cadre_abbr' => $choice_abbr,
-            'cadre_code' => $code,
-            'cand_index' => $idx,
-            'quota' => $cand['quota'] ?? [],
-            'cadre_category' => $cand['cadre_category'] ?? null,
-        ];
-    }
-}
-
-// Sort each queue by score ascending, then by choice_rank, then by reg_no
-foreach ($queues as $code => &$q) {
-    usort($q, function($a, $b) {
-        if ($a['score'] != $b['score']) return ($a['score'] < $b['score']) ? -1 : 1;
-        if ($a['choice_rank'] != $b['choice_rank']) return ($a['choice_rank'] < $b['choice_rank']) ? -1 : 1;
-        return strcmp($a['reg_no'], $b['reg_no']);
-    });
-}
-unset($q);
-
-// --- Allocation ---
-// Copy post availability to mutable structure
-$remaining = [];
-foreach ($post_available as $code => $info) {
-    $remaining[$code] = [
-        'MQ' => $info['MQ'],
-        'CFF' => $info['CFF'],
-        'EM' => $info['EM'],
-        'PHC' => $info['PHC'],
-        'total_post' => $info['total_post'],
-        'allocated' => 0,
+/**
+ * Add log entry
+ */
+function addLog(&$logs, $reg_no, $message) {
+    $logs[] = [
+        'reg_no' => $reg_no,
+        'message' => $message
     ];
 }
 
-$allocations = []; // reg_no => allocation details
+/**
+ * Create allocation queues
+ */
+foreach ($candidates as $candidate) {
 
-// Sort global candidate order by order_score ascending
-usort($allocation_candidates, function($a,$b){
-    if ($a['order_score'] != $b['order_score']) return ($a['order_score'] < $b['order_score']) ? -1 : 1;
-    return $a['orig_index'] <=> $b['orig_index'];
-});
+    $rawChoiceList = $candidate['choice_list'];
+    $choiceList = explode(" ", trim($candidate['choice_list']));
+    $category = $candidate['cadre_category'];
 
-// Helper to check eligibility for a given candidate and cadre_abbr
-function candidate_is_eligible_for($candidate, $cadre_abbr, $abbr_to_code, $technical_abbrs) {
-    if (!isset($abbr_to_code[$cadre_abbr])) return false;
-    $code = $abbr_to_code[$cadre_abbr];
-    $is_technical = isset($technical_abbrs[$cadre_abbr]);
-    if ($is_technical) {
-        if (empty($candidate['technical_merit_position']) || !is_array($candidate['technical_merit_position'])) return false;
-        return isset($candidate['technical_merit_position'][$cadre_abbr]);
-    } else {
-        return !empty($candidate['general_merit_position']);
-    }
-}
+    foreach ($choiceList as $choice) {
 
-// For each candidate in merit order, try to allocate
-foreach ($allocation_candidates as $entry) {
-    $cand = $entry['candidate'];
-    $reg = $cand['reg_no'];
-    if (isset($allocations[$reg])) continue; // already allocated
+        $isTechnicalCadre = in_array($choice, $technicalCadres);
 
-    $choices = parse_choices($cand['choice_list']);
-    foreach ($choices as $choice_abbr) {
-        if (!isset($abbr_to_code[$choice_abbr])) continue;
-        $code = $abbr_to_code[$choice_abbr];
-
-        // Quickly skip if no seats left at all
-        $total_left = $remaining[$code]['MQ'] + $remaining[$code]['CFF'] + $remaining[$code]['EM'] + $remaining[$code]['PHC'];
-        if ($total_left <= 0) continue;
-
-        // Check eligibility
-        $is_technical = isset($technical_abbrs[$choice_abbr]);
-        $eligible = true;
-        if ($is_technical) {
-            if (empty($cand['technical_merit_position']) || !isset($cand['technical_merit_position'][$choice_abbr])) $eligible = false;
-        } else {
-            if (empty($cand['general_merit_position'])) $eligible = false;
-        }
-        if (!$eligible) continue;
-
-        // If candidate has a quota, try to allocate in that quota for this cadre if seats remain.
-        // Quota preference order: CFF -> EM -> PHC -> MQ
-        $quota_allocated = null;
-        if (!empty($cand['quota']) && is_array($cand['quota'])) {
-            if (!empty($cand['quota']['CFF']) && $remaining[$code]['CFF'] > 0) {
-                $remaining[$code]['CFF'] -= 1;
-                $quota_allocated = 'CFF';
-            } elseif (!empty($cand['quota']['EM']) && $remaining[$code]['EM'] > 0) {
-                $remaining[$code]['EM'] -= 1;
-                $quota_allocated = 'EM';
-            } elseif (!empty($cand['quota']['PHC']) && $remaining[$code]['PHC'] > 0) {
-                $remaining[$code]['PHC'] -= 1;
-                $quota_allocated = 'PHC';
+        // RULE 1 — GG → only assign to GENERAL cadets
+        if ($category === 'GG') {
+            if ($candidate['general_merit_position'] === null) {
+                addLog($logs, $candidate['reg_no'], "Skipped $choice: GG candidate missing general merit.");
+                continue;
+            }
+            if ($isTechnicalCadre) {
+                addLog($logs, $candidate['reg_no'],
+                    "Skipped $choice: GG candidate cannot enter technical cadre queue."
+                );
+                continue;
             }
         }
 
-        // If no quota seat allocated above, allocate MQ if available
-        if ($quota_allocated === null && $remaining[$code]['MQ'] > 0) {
-            $remaining[$code]['MQ'] -= 1;
-            $quota_allocated = 'MQ';
+        // RULE 2 — TT → Only technical cadres where technical_merit_position exists
+        if ($category === 'TT') {
+            if (!$isTechnicalCadre) {
+                addLog($logs, $candidate['reg_no'], "Skipped $choice: TT candidate cannot join general cadres.");
+                continue;
+            }
+
+            $merits = formatTechnicalMerit($candidate);
+            if (!isset($merits[$choice])) {
+                addLog($logs, $candidate['reg_no'],
+                    "Skipped $choice: No technical merit available for this cadre."
+                );
+                continue;
+            }
         }
 
-        if ($quota_allocated !== null) {
-            // allocate
-            $remaining[$code]['allocated'] += 1;
-            $allocations[$reg] = [
-                'reg_no' => $reg,
-                'user_id' => $cand['user_id'],
-                'cadre_code' => $code,
-                'cadre_abbr' => $choice_abbr,
-                'cadre_name' => $code_to_name[$code] ?? $choice_abbr,
-                'quota' => $quota_allocated,
-                'choice_assigned_rank' => array_search($choice_abbr, parse_choices($cand['choice_list'])) + 1,
-            ];
-            break; // stop at first successful allocation (highest priority choice available)
+        // RULE 3 — GT → technical cadres must exist in technical merit list
+        if ($category === 'GT' && $isTechnicalCadre) {
+            $merits = formatTechnicalMerit($candidate);
+            if (!isset($merits[$choice])) {
+                addLog($logs, $candidate['reg_no'],
+                    "Skipped $choice: GT candidate lacks technical merit for $choice."
+                );
+                continue;
+            }
         }
-        // else try next choice
+
+        // ADD TO QUEUE
+        $allocationQueues[$choice][] = [
+            'candidate' => $candidate,
+            'raw_choice_list' => $rawChoiceList
+        ];
+
+        addLog($logs, $candidate['reg_no'], "Added to $choice queue.");
     }
 }
 
-// --- Output / Summary ---
-// Build readable allocation list
-$alloc_list = array_values($allocations);
+/**
+ * Sort queues
+ */
+foreach ($allocationQueues as $cadre => &$queue) {
 
-// Print a summary to stdout (CLI/web)
-echo "--- Allocation Summary ---<br>";
-echo "Total candidates: " . count($candidates) . "<br>";
-echo "Total allocated: " . count($alloc_list) . "<br><br>";
+    $isTechnical = in_array($cadre, $technicalCadres);
 
-foreach ($alloc_list as $a) {
-    echo "Reg: {$a['reg_no']} | User: {$a['user_id']} | Cadre: {$a['cadre_abbr']} ({$a['cadre_name']}) | Quota: {$a['quota']} | Choice#: {$a['choice_assigned_rank']}<br>";
+    usort($queue, function ($a, $b) use ($isTechnical) {
+        $A = $a['candidate'];
+        $B = $b['candidate'];
+
+        if (!$isTechnical) { // general sort
+            return $A['general_merit_position'] <=> $B['general_merit_position'];
+        }
+
+        // technical sort
+        $A_m = formatTechnicalMerit($A)[$cadre] ?? 999999;
+        $B_m = formatTechnicalMerit($B)[$cadre] ?? 999999;
+        return $A_m <=> $B_m;
+    });
+
 }
 
-echo "<br>--- Remaining posts by cadre code ---<br>";
-foreach ($remaining as $code => $rem) {
-    $abbr = $code_to_abbr[$code];
-    echo "{$abbr} ({$code}): MQ={$rem['MQ']}, CFF={$rem['CFF']}, EM={$rem['EM']}, PHC={$rem['PHC']}, allocated={$rem['allocated']}<br>";
+$allocation = [];
+
+foreach ($allocationQueues as $cadre => &$queue) {
+
+    if (!isset($post_available[$abbr_to_code[$cadre]])) continue;
+
+    $remainingPosts = $post_available[$abbr_to_code[$cadre]]['total_post'];
+    if ($remainingPosts <= 0) continue;
+
+    foreach ($queue as $i => $entry) {
+
+        if ($remainingPosts <= 0) break;
+
+        $candidate = $entry['candidate'];
+
+        if (isset($finalAllocated[$candidate['reg_no']])) {
+            continue;
+        }
+
+        $chosenRank = array_search($cadre, explode(" ", $entry['raw_choice_list'])) + 1;
+
+        $allocation[$cadre][] = [
+            'reg_no' => $candidate['reg_no'],
+            'user_id' => $candidate['user_id'],
+            'cadre_code' => $cadre_list['code'][$cadre],
+            'cadre_abbr' => $cadre,
+            'cadre_name' => $cadre_list['name'][$cadre],
+            'quota' => $candidate['quota'] ?? 'GEN',
+            'choice_assigned_rank' => $chosenRank,
+            'raw_choice_list' => $entry['raw_choice_list'],
+            'technical_merit_positions' => formatTechnicalMerit($candidate)
+        ];
+
+        $post_available[$cadre]['total']--;
+        $stillChanging = true;
+
+        addLog($logs, $candidate['reg_no'], "Tentatively allocated to $cadre.");
+    }
+
 }
-
-// Optionally: dump queues for inspection (commented out)
-// var_export($queues);
-
-// End of implementation
-
-
 
 echo '<pre>';
-print_r( $alloc_list );
-echo '<pre>';
 
-// Print summary
-/*
+var_dump( $allocation );
 
-echo "Iterations run: $iteration\<br>";
-echo "Total candidates: " . count($candidate_index) . "\<br>";
-echo "Total finalized allocations: " . count($final_allocations) . "\<br>\<br>";
-foreach ($final_allocations as $fa) {
-    echo "Reg: {$fa['reg_no']} | User: {$fa['user_id']} | Cadre: {$fa['cadre_abbr']} ({$fa['cadre_code']}) | Quota: {$fa['quota']} | Choice#: {$fa['choice_rank']}n";
-}
-
-echo "Remaining posts by cadre code:";
-
-foreach ($remaining as $code => $rem) {
-    $abbr = $code_to_abbr[$code] ?? $code;
-    echo "{$abbr} ({$code}): MQ={$rem['MQ']}, CFF={$rem['CFF']}, EM={$rem['EM']}, PHC={$rem['PHC']}, allocated={$rem['allocated']}<br>";
-}
-file_put_contents(__DIR__ . '/allocation_result.json', json_encode($final_allocations, JSON_PRETTY_PRINT));
-echo "Saved allocation_result.json";
-
-*/
+echo '</pre>';
 
 die();
+
+/**
+ * MULTIPLE ASSIGNMENT RESOLUTION
+ */
+$foundMultiple = false;
+
+foreach ($allocation as $cadre => $list) {
+
+    foreach ($list as $assigned) {
+
+        $reg = $assigned['reg_no'];
+
+        // Count total temporary assignments
+        $count = 0;
+        $foundIn = [];
+
+        foreach ($allocation as $c2 => $l2) {
+            foreach ($l2 as $item) {
+                if ($item['reg_no'] === $reg) {
+                    $count++;
+                    $foundIn[] = $c2;
+                }
+            }
+        }
+
+        if ($count <= 1) continue; // no conflict
+
+        $foundMultiple = true;
+
+        $candidate = null;
+        foreach ($candidates as $c) {
+            if ($c['reg_no'] == $reg) {
+                $candidate = $c;
+                break;
+            }
+        }
+
+        $choiceArray = explode(" ", $candidate['choice_list']);
+
+        // choose highest preference
+        $bestCadre = null;
+        foreach ($choiceArray as $p) {
+            if (in_array($p, $foundIn)) {
+                $bestCadre = $p;
+                break;
+            }
+        }
+
+        // finalize if first preference
+        if ($bestCadre === $choiceArray[0]) {
+            $finalAllocated[$reg] = $bestCadre;
+        }
+
+        // remove from all but bestCadre
+        foreach ($allocation as $cad2 => &$allocList) {
+            foreach ($allocList as $i => $item) {
+                if ($item['reg_no'] == $reg && $cad2 !== $bestCadre) {
+                    unset($allocList[$i]);
+                    $post_available[$cad2]['total']++; // return post
+                }
+            }
+        }
+    }
+}
+
+die();
+
+/**
+ * Multi-step allocation iteration
+ */
+
+$allocation = [];
+
+$stillChanging = true;
+
+while ($stillChanging) {
+    $stillChanging = false;
+
+    foreach ($allocationQueues as $cadre => &$queue) {
+
+        if (!isset($post_available[$cadre])) continue;
+
+        $remainingPosts = $post_available[$cadre]['total'];
+        if ($remainingPosts <= 0) continue;
+
+        print_r($queue);
+
+        foreach ($queue as $i => $entry) {
+
+            if ($remainingPosts <= 0) break;
+
+            $candidate = $entry['candidate'];
+
+            if (isset($finalAllocated[$candidate['reg_no']])) {
+                addLog($logs, $candidate['reg_no'], "Already finalized elsewhere. Skipped in $cadre.");
+                continue;
+            }
+
+            $chosenRank = array_search($cadre, explode(" ", $entry['raw_choice_list'])) + 1;
+
+            $allocation[$cadre][] = [
+                'reg_no' => $candidate['reg_no'],
+                'user_id' => $candidate['user_id'],
+                'cadre_code' => $cadre_list['code'][$cadre],
+                'cadre_abbr' => $cadre,
+                'cadre_name' => $cadre_list['name'][$cadre],
+                'quota' => $candidate['quota'] ?? 'GEN',
+                'choice_assigned_rank' => $chosenRank,
+                'raw_choice_list' => $entry['raw_choice_list'],
+                'technical_merit_positions' => formatTechnicalMerit($candidate)
+            ];
+
+            $post_available[$cadre]['total']--;
+            $stillChanging = true;
+
+            addLog($logs, $candidate['reg_no'], "Tentatively allocated to $cadre.");
+        }
+    }
+
+    /**
+     * MULTIPLE ASSIGNMENT RESOLUTION
+     */
+    $foundMultiple = false;
+
+    foreach ($allocation as $cadre => $list) {
+
+        foreach ($list as $assigned) {
+
+            $reg = $assigned['reg_no'];
+
+            // Count total temporary assignments
+            $count = 0;
+            $foundIn = [];
+
+            foreach ($allocation as $c2 => $l2) {
+                foreach ($l2 as $item) {
+                    if ($item['reg_no'] === $reg) {
+                        $count++;
+                        $foundIn[] = $c2;
+                    }
+                }
+            }
+
+            if ($count <= 1) continue; // no conflict
+
+            $foundMultiple = true;
+
+            $candidate = null;
+            foreach ($candidates as $c) {
+                if ($c['reg_no'] == $reg) {
+                    $candidate = $c;
+                    break;
+                }
+            }
+
+            $choiceArray = explode(" ", $candidate['choice_list']);
+
+            // choose highest preference
+            $bestCadre = null;
+            foreach ($choiceArray as $p) {
+                if (in_array($p, $foundIn)) {
+                    $bestCadre = $p;
+                    break;
+                }
+            }
+
+            addLog($logs, $reg, "Multiple assignments found. Best cadre: $bestCadre.");
+
+            // finalize if first preference
+            if ($bestCadre === $choiceArray[0]) {
+                $finalAllocated[$reg] = $bestCadre;
+                addLog($logs, $reg, "Finalized because best cadre is 1st choice.");
+            }
+
+            // remove from all but bestCadre
+            foreach ($allocation as $cad2 => &$allocList) {
+                foreach ($allocList as $i => $item) {
+                    if ($item['reg_no'] == $reg && $cad2 !== $bestCadre) {
+                        unset($allocList[$i]);
+                        $post_available[$cad2]['total']++; // return post
+
+                        addLog($logs, $reg, "Removed from $cad2 (kept $bestCadre).");
+                    }
+                }
+            }
+        }
+    }
+
+    if (!$foundMultiple) $stillChanging = false;
+}
+
+/**
+ * Build UNALLOCATED list
+ */
+$allocatedRegs = [];
+foreach ($allocation as $cadre => $arr) {
+    foreach ($arr as $entry) {
+        $allocatedRegs[$entry['reg_no']] = true;
+    }
+}
+
+$unallocated = [];
+
+foreach ($candidates as $c) {
+    if (!isset($allocatedRegs[$c['reg_no']])) {
+        $unallocated[] = [
+            'reg_no' => $c['reg_no'],
+            'user_id' => $c['user_id'],
+            'raw_choice_list' => $c['choice_list'],
+            'technical_merit_positions' => formatTechnicalMerit($c),
+            'message' => "No cadre allocated after all rounds."
+        ];
+        addLog($logs, $c['reg_no'], "Remained unallocated.");
+    }
+}
+
+/*return [
+    'allocation' => $allocation,
+    'unallocated' => $unallocated,
+    'logs' => $logs
+];*/
+
+echo '<pre>';
+
+var_dump( $allocatedRegs );
+
+echo '</pre>';
+
+die();
+
+
