@@ -1,130 +1,580 @@
-[
-    {
-        "reg_no": 20250001,
-        "user_id": "USR1A2BC34",
-        "cadre_code": 101,
-        "cadre_abbr": "ADMN",
-        "quota": "CFF",
-        "choice_rank": 2
+{
+    "iteration_count": 2,
+    "finalized_allocations": [
+        {
+            "reg_no": 20250018,
+            "user_id": "USR2V3B4N5",
+            "cadre_code": 207,
+            "cadre_abbr": "EDUC",
+            "cadre_name": "EDUC",
+            "quota": "MQ",
+            "choice_assigned_rank": 1,
+            "raw_choice_list": "EDUC ADMN FAMP",
+            "technical_merit_position": {
+                "EDUC": 4
+            }
+        },
+        {
+            "reg_no": 20250006,
+            "user_id": "USR3A4B5C6",
+            "cadre_code": 208,
+            "cadre_abbr": "ROME",
+            "cadre_name": "ROME",
+            "quota": "MQ",
+            "choice_assigned_rank": 2,
+            "raw_choice_list": "EDUC ROME ADMN CUST",
+            "technical_merit_position": {
+                "ROME": 6,
+                "EDUC": 10
+            }
+        },
+        {
+            "reg_no": 20250003,
+            "user_id": "USR7K6L5M4",
+            "cadre_code": 209,
+            "cadre_abbr": "ENPH",
+            "cadre_name": "ENPH",
+            "quota": "MQ",
+            "choice_assigned_rank": 2,
+            "raw_choice_list": "ADMN ENPH FRGN",
+            "technical_merit_position": {
+                "ENPH": 5
+            }
+        },
+        {
+            "reg_no": 20250012,
+            "user_id": "USR9B8C7D6",
+            "cadre_code": 210,
+            "cadre_abbr": "ENPW",
+            "cadre_name": "ENPW",
+            "quota": "MQ",
+            "choice_assigned_rank": 1,
+            "raw_choice_list": "ENPW ADMN RAIL",
+            "technical_merit_position": {
+                "ENPW": 7
+            }
+        },
+        {
+            "reg_no": 20250009,
+            "user_id": "USR8L7M6N5",
+            "cadre_code": 214,
+            "cadre_abbr": "TXTL",
+            "cadre_name": "TXTL",
+            "quota": "MQ",
+            "choice_assigned_rank": 3,
+            "raw_choice_list": "FRGN ADMN TXTL",
+            "technical_merit_position": {
+                "TXTL": 8
+            }
+        }
+    ],
+    "unallocated": [
+        {
+            "reg_no": 20250001,
+            "user_id": "USR1A2BC34",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "FRGN ADMN CUST COOP FAMP",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250002,
+            "user_id": "USR9X8Y7Z6",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "HLTH ROME ENPH",
+            "technical_merit_position": {
+                "ENPH": 6,
+                "ROME": 7
+            }
+        },
+        {
+            "reg_no": 20250004,
+            "user_id": "USR4P3Q2R1",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ADMN ECON FRGN CUST",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250005,
+            "user_id": "USR5T6U7V8",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ENPH TXTL FORE",
+            "technical_merit_position": {
+                "TXTL": 9,
+                "ENPH": 9
+            }
+        },
+        {
+            "reg_no": 20250007,
+            "user_id": "USR1Z2Y3X4",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "INFO ADMN COOP TRAD",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250008,
+            "user_id": "USR9Q8W7E6",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ENPH EDUC HLTH",
+            "technical_merit_position": {
+                "ENPH": 2
+            }
+        },
+        {
+            "reg_no": 20250010,
+            "user_id": "USR5C4D3E2",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "FRGN ADMN TAXN",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250011,
+            "user_id": "USR1G2H3I4",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "FORE HLTH",
+            "technical_merit_position": {
+                "HLTH": 5,
+                "FISH": 11
+            }
+        },
+        {
+            "reg_no": 20250013,
+            "user_id": "USR7R6S5T4",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ADMN INFO TRAD",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250014,
+            "user_id": "USR2M3N4O5",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "EDUC HLTH ENPH",
+            "technical_merit_position": {
+                "EDUC": 12
+            }
+        },
+        {
+            "reg_no": 20250015,
+            "user_id": "USR4W3E2R1",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ENPH ADMN COOP",
+            "technical_merit_position": {
+                "ENPH": 1
+            }
+        },
+        {
+            "reg_no": 20250016,
+            "user_id": "USR6H5J4K3",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "FRGN ADMN RAIL",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250017,
+            "user_id": "USR8Q7W6E5",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ROME ENPW EDUC",
+            "technical_merit_position": {
+                "ROME": 11
+            }
+        },
+        {
+            "reg_no": 20250019,
+            "user_id": "USR1C2V3B4",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "ADMN TRAD INFO",
+            "technical_merit_position": []
+        },
+        {
+            "reg_no": 20250020,
+            "user_id": "USR9P8O7I6",
+            "cadre_code": null,
+            "cadre_abbr": null,
+            "cadre_name": null,
+            "quota": null,
+            "choice_assigned_rank": null,
+            "raw_choice_list": "FORE ENWD ENPW",
+            "technical_merit_position": {
+                "ENPW": 3
+            }
+        }
+    ],
+    "remaining_posts_snapshot": {
+        "101": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "102": {
+            "MQ": 2,
+            "CFF": 0,
+            "EM": 1,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "103": {
+            "MQ": 2,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "105": {
+            "MQ": 2,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "106": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "107": {
+            "MQ": 1,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 1,
+            "allocated": 0
+        },
+        "108": {
+            "MQ": 4,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 5,
+            "allocated": 0
+        },
+        "109": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "111": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 1,
+            "PHC": 0,
+            "total_post": 4,
+            "allocated": 0
+        },
+        "112": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "113": {
+            "MQ": 3,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "115": {
+            "MQ": 3,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "116": {
+            "MQ": 1,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "201": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "202": {
+            "MQ": 2,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 1,
+            "total_post": 3,
+            "allocated": 0
+        },
+        "203": {
+            "MQ": 4,
+            "CFF": 1,
+            "EM": 1,
+            "PHC": 1,
+            "total_post": 7,
+            "allocated": 0
+        },
+        "207": {
+            "MQ": 0,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 1
+        },
+        "208": {
+            "MQ": 1,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 1
+        },
+        "209": {
+            "MQ": 0,
+            "CFF": 0,
+            "EM": 1,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 1
+        },
+        "210": {
+            "MQ": 1,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 1
+        },
+        "212": {
+            "MQ": 2,
+            "CFF": 1,
+            "EM": 1,
+            "PHC": 0,
+            "total_post": 4,
+            "allocated": 0
+        },
+        "213": {
+            "MQ": 1,
+            "CFF": 1,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 0
+        },
+        "214": {
+            "MQ": 1,
+            "CFF": 0,
+            "EM": 0,
+            "PHC": 0,
+            "total_post": 2,
+            "allocated": 1
+        }
     },
-    {
-        "reg_no": 20250003,
-        "user_id": "USR7K6L5M4",
-        "cadre_code": 209,
-        "cadre_abbr": "ENPH",
-        "quota": "EM",
-        "choice_rank": 2
-    },
-    {
-        "reg_no": 20250004,
-        "user_id": "USR4P3Q2R1",
-        "cadre_code": 101,
-        "cadre_abbr": "ADMN",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250005,
-        "user_id": "USR5T6U7V8",
-        "cadre_code": 214,
-        "cadre_abbr": "TXTL",
-        "quota": "MQ",
-        "choice_rank": 2
-    },
-    {
-        "reg_no": 20250006,
-        "user_id": "USR3A4B5C6",
-        "cadre_code": 208,
-        "cadre_abbr": "ROME",
-        "quota": "MQ",
-        "choice_rank": 2
-    },
-    {
-        "reg_no": 20250007,
-        "user_id": "USR1Z2Y3X4",
-        "cadre_code": 112,
-        "cadre_abbr": "INFO",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250009,
-        "user_id": "USR8L7M6N5",
-        "cadre_code": 214,
-        "cadre_abbr": "TXTL",
-        "quota": "MQ",
-        "choice_rank": 3
-    },
-    {
-        "reg_no": 20250010,
-        "user_id": "USR5C4D3E2",
-        "cadre_code": 103,
-        "cadre_abbr": "FRGN",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250011,
-        "user_id": "USR1G2H3I4",
-        "cadre_code": 201,
-        "cadre_abbr": "HLTH",
-        "quota": "MQ",
-        "choice_rank": 2
-    },
-    {
-        "reg_no": 20250012,
-        "user_id": "USR9B8C7D6",
-        "cadre_code": 210,
-        "cadre_abbr": "ENPW",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250013,
-        "user_id": "USR7R6S5T4",
-        "cadre_code": 101,
-        "cadre_abbr": "ADMN",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250015,
-        "user_id": "USR4W3E2R1",
-        "cadre_code": 209,
-        "cadre_abbr": "ENPH",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250016,
-        "user_id": "USR6H5J4K3",
-        "cadre_code": 103,
-        "cadre_abbr": "FRGN",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250017,
-        "user_id": "USR8Q7W6E5",
-        "cadre_code": 208,
-        "cadre_abbr": "ROME",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250018,
-        "user_id": "USR2V3B4N5",
-        "cadre_code": 207,
-        "cadre_abbr": "EDUC",
-        "quota": "MQ",
-        "choice_rank": 1
-    },
-    {
-        "reg_no": 20250020,
-        "user_id": "USR9P8O7I6",
-        "cadre_code": 210,
-        "cadre_abbr": "ENPW",
-        "quota": "MQ",
-        "choice_rank": 3
-    }
-]
+    "logs": [
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250018",
+            "message": "Tentatively allocated to 207 under MQ (choice #1)."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250006",
+            "message": "No suitable seat (MQ\/Quota) available now for cadre 207."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250006",
+            "message": "Tentatively allocated to 208 under MQ (choice #2)."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250003",
+            "message": "Tentatively allocated to 209 under MQ (choice #2)."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250015",
+            "message": "No suitable seat (MQ\/Quota) available now for cadre 209."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250012",
+            "message": "Tentatively allocated to 210 under MQ (choice #1)."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250009",
+            "message": "Tentatively allocated to 214 under MQ (choice #3)."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250018",
+            "message": "Finalized (sole remaining tentative) at 207."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250006",
+            "message": "Finalized (sole remaining tentative) at 208."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250003",
+            "message": "Finalized (sole remaining tentative) at 209."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250012",
+            "message": "Finalized (sole remaining tentative) at 210."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250009",
+            "message": "Finalized (sole remaining tentative) at 214."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250001",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250002",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250004",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250005",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250007",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250008",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250010",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250011",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250013",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250014",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250015",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250016",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250017",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250019",
+            "message": "Remained unallocated."
+        },
+        {
+            "time": "2025-11-21 12:44:43",
+            "reg_no": "20250020",
+            "message": "Remained unallocated."
+        }
+    ]
+}

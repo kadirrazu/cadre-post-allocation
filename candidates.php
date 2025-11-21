@@ -21,7 +21,7 @@ $candidates = [
         'general_merit_position' => null,
         'global_tech_merit' => 230,
         'technical_merit_position' => ['ENPH' => 6, 'ROME' => 7],
-        'choice_list' => 'HLTH ROME ENPH',
+        'choice_list' => 'ENPH HLTH ROME',
         'quota' => [
             'CFF' => true,
             'EM' => false,
@@ -61,7 +61,7 @@ $candidates = [
         'cadre_category' => 'TT',
         'general_merit_position' => null,
         'global_tech_merit' => 2300,
-        'technical_merit_position' => ['TXTL' => 9, 'ENPH' => 9],
+        'technical_merit_position' => ['TXTL' => 9, 'ENPH' => 9, 'FORE' => 9],
         'choice_list' => 'ENPH TXTL FORE',
         'quota' => [
             'CFF' => false,
