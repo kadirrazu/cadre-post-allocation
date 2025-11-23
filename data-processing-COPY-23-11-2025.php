@@ -114,18 +114,6 @@ function is_already_allocated($allocated, $reg) {
     return false;
 }
 
-
-function is_already_allocated_in_this_cadre($allocated, $reg, $cadre) {
-    foreach ($allocated as $cad => $list) {
-        if( $cad == $cadre ){
-            foreach ($list as $a) {
-                if ($a['reg_no'] === $reg) return true;
-            }
-        }
-    }
-    return false;
-}
-
 //Create cadre wise candidate_pools
 //If cadre type is GENERAL, then, general merit position must be there. And type will be GG or GT
 //If cadre type is TECHNICAL, then, global_tech_merit must be there. And type will be GT or TT
@@ -256,47 +244,6 @@ foreach( $post_available as $code => $info )
 //Cadre-Wise Allocation: 1st Round
 //In this step we will fill all the possible cadre posts from its queue candidates.
 
-function get_choice_comparison_result($foundIn, $rawChoiceList)
-{
-    $choiceAbbr = null;
-    $index = 99999;
-
-    foreach( $foundIn as $found )
-    {
-
-        $position = array_search($found, $rawChoiceList);
-
-        if( $position < $index )
-        {
-            $index = $position;
-        }
-
-    }
-    
-    return $rawChoiceList[$index] ?? null;
-}
-
-function get_choice_comparison_result_index($foundIn, $rawChoiceList)
-{
-    $choiceAbbr = null;
-    $index = 99999;
-
-    foreach( $foundIn as $found )
-    {
-
-        $position = array_search($found, $rawChoiceList);
-
-        if( $position < $index )
-        {
-            $index = $position;
-        }
-
-    }
-    
-    return $index ?? null;
-}
-
-
 $stillImbalanced = true;
 $i = 0;
 $allocated = [];
@@ -336,7 +283,7 @@ while( $stillImbalanced )
             if ($posts_left <= 0) break; // cadre is fully allocated
 
             //*** MISSING CHECK ***
-            //if (is_already_allocated($allocated, $entry['reg_no'])) continue;
+            if (is_already_allocated($allocated, $entry['reg_no'])) continue;
 
             $reg = $entry['reg_no'];
             $candidate = $entry['candidate'];
@@ -410,7 +357,7 @@ while( $stillImbalanced )
             $reg = $assigned['reg_no'];
             $rawChoiceList = parse_choices_list( $assigned['candidate']['choice_list'] );
 
-            //Step 01: Count total temporary assignments in current iteration
+            //Count total temporary assignments
             $count = 0;
             $foundIn = [];
 
@@ -425,76 +372,6 @@ while( $stillImbalanced )
                 }
             }
 
-            foreach( $allocated as $c3 => $l3 )
-            {
-                foreach( $l3 as $item )
-                {
-                    if ($item['reg_no'] === $reg) {
-                        $count++;
-                        $foundIn[] = $c3;
-                    }
-                }
-            }
-
-            //echo $reg;
-            //var_dump( $foundIn );
-
-            //Step 02: Decide which choice is higher in his raw choice list.
-            $higherChoiceAbbr = get_choice_comparison_result($foundIn, $rawChoiceList);
-            $higherChoiceIndex = get_choice_comparison_result_index($foundIn, $rawChoiceList);
-
-            //Step 03: Allocate in higher choice.
-            if( $cadre == $higherChoiceAbbr )
-            {
-
-                // avoid double-adding if already added earlier
-                if(!is_already_allocated_in_this_cadre($allocated, $reg, $cadre))
-                {
-                    $status = 'temporary';
-
-                    if( $higherChoiceIndex == 0 ){
-                        $status = 'final';
-                    }
-
-                    $allocated[$cadre][] = [
-                        'reg_no' => $reg,
-                        'allocation_status' => $status,
-                        'candidate' => $assigned['candidate']
-                    ];
-                }
-
-            }
-            else
-            {
-                if( in_array($cadre, $foundIn) ){
-                    $remaining[$cadre][$assigned['quota']]++;
-                    $remaining[$cadre]['allocated']--;
-                }
-            }
-
-            //Step 04: Remove from other cadres, if exists
-            foreach( $queues as $cad => &$allocList )
-            {
-                foreach ( $allocList as $i => $item )
-                {
-
-                    if( $item['reg_no'] == $reg && $cadre != $higherChoiceAbbr )
-                    {
-                        unset($allocList[$i]);
-                    }
-
-                }
-
-                $allocList = array_values( $allocList );
-
-            }
-
-            unset( $allocList );
-
-            
-            /*
-            //Remove from all position except higher choices
-
             //if ($count <= 1) continue; // no conflict
 
             // If there's no conflict (only allocated in one cadre this round),
@@ -502,7 +379,7 @@ while( $stillImbalanced )
             if ($count <= 1)
             {
                 // avoid double-adding if already added earlier
-                if(!is_already_allocated($allocated, $reg))
+                if (!is_already_allocated($allocated, $reg))
                 {
                     $allocated[$cadre][] = [
                         'reg_no' => $reg,
@@ -602,13 +479,12 @@ while( $stillImbalanced )
 
             $currentCadre = null;
             $foundFirstChoice = false;
-            */
             
         }
 
     }
 
-    if( $i == 1 ) $stillImbalanced = false;
+    if( $i == 10 ) $stillImbalanced = false;
 
     $i++;
 
@@ -620,21 +496,6 @@ while( $stillImbalanced )
 
 //Now we need to loop through the queues to fill up the rest posts.
 
-
-echo '<pre>'; 
-print_r( $remaining ); 
-echo '</pre>';
-
-echo '<pre>'; 
-print_r( $allocated ); 
-echo '</pre>';
-
-echo '<pre>'; 
-print_r( $queues ); 
-echo '</pre>';
-
-
-//die;
 
 $allocation = $allocated;
 
