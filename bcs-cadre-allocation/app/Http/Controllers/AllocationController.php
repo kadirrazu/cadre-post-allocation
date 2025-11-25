@@ -15,39 +15,58 @@ class AllocationController extends Controller
 {
     public function runAllocation()
     {
-        echo '= You are here to allocate BCS Cadres! Fasten your seat belt and enjoy... <br><br>';
 
-        echo '= Queue building started, proceeding cadre wise... <br><br>';
+        $iterationContinue = true;
 
-        $queues = $this->generateAllocationQueues();
+        while( $iterationContinue )
+        {
 
-        echo '= Queue Done! <br><br>';
+            $numOfAssignedCandidates = Candidate::where('assigned_cadre', '!=', NULL)->count();
 
-        echo '= Sorting Queues. Performing merit based sorting for each QUEUE... <br><br>';
+            echo '= Candidate count at the starting phase of the iteration: ' . $numOfAssignedCandidates . '<br><br>';
         
-        $sortedQueues = $this->sortAllocationQueues( $queues );
+            echo '= You are here to allocate BCS Cadres! Fasten your seat belt and enjoy... <br><br>';
 
-        echo '= Queue Sorting Done! <br><br>';
+            echo '= Queue building started, proceeding cadre wise... <br><br>';
 
-        echo '= Now proceeding cadre wise. Performing merit based ALLOCATON from Queue... <br><br>';
+            $queues = $this->generateAllocationQueues();
 
-        $allocationResult = $this->allocateCadre( $sortedQueues );
+            echo '= Queue Done! <br><br>';
 
-        echo '= Allocation Done! <br><br>';
+            echo '= Sorting Queues. Performing merit based sorting for each QUEUE... <br><br>';
+            
+            $sortedQueues = $this->sortAllocationQueues( $queues );
 
-        echo '= Proceeding with MULTIPLE ALLOCATION SOLVING, will keep the candidate in his/her best choice position... <br><br>';
+            echo '= Queue Sorting Done! <br><br>';
 
-        $solvedResult = $this->solveMultipleAllocations( $allocationResult );
+            echo '= Now proceeding cadre wise. Performing merit based ALLOCATON from Queue... <br><br>';
 
-        echo '= Multiple Allocation Resolution Performed! <br><br>';
+            $allocationResult = $this->allocateCadre( $sortedQueues );
 
-        echo '= Now PATCHING the clean result into the DATABASE... <br><br>';
+            echo '= Allocation Done! <br><br>';
 
-        $updated = $this->updateSolvedResultToDatabase( $solvedResult );
+            echo '= Proceeding with MULTIPLE ALLOCATION SOLVING, will keep the candidate in his/her best choice position... <br><br>';
 
-        echo '= Database Patched! Check your ALLOCATION RESULT... <br><br>';
+            $solvedResult = $this->solveMultipleAllocations( $allocationResult );
 
-        var_dump( $updated );
+            echo '= Multiple Allocation Resolution Performed! <br><br>';
+
+            echo '= Now PATCHING the clean result into the DATABASE... <br><br>';
+
+            $updated = $this->updateSolvedResultToDatabase( $solvedResult );
+
+            echo '= Database Patched! Check your ALLOCATION RESULT... <br><br>';
+
+            $numOfAssignedCandidatesAfterIteration = Candidate::where('assigned_cadre', '!=', NULL)->count();
+
+            echo '= Candidate count after the ending phase of the iteration: ' . $numOfAssignedCandidatesAfterIteration . '<br><br>';
+
+            if( $numOfAssignedCandidates == $numOfAssignedCandidatesAfterIteration ){
+                $iterationContinue = false;
+            }
+
+        }
+
     }
 
     private function updateSolvedResultToDatabase( $solvedResult )
@@ -57,6 +76,35 @@ class AllocationController extends Controller
             foreach( $list as $cand )
             {
                 $reg = $cand['candidate']->reg;
+
+                //Release post if already in a lower cadre
+                $alreadyExists = Candidate::where('reg', $reg)->where('assigned_cadre', '!=', NULL)->first();
+
+                if( $alreadyExists ){
+                    $cadreCode = $alreadyExists->assigned_cadre;
+                    $cadreStatus = $alreadyExists->assigned_status;
+
+                    if( $cadreStatus == 'MQ' ){
+                         Post::where('cadre_code', $cadreCode)->increment('total_post_left');
+                         Post::where('cadre_code', $cadreCode)->increment('mq_post_left');
+                         Post::where('cadre_code', $cadreCode)->decrement('allocated_post_count');
+                    }
+                    else if( $cadreStatus == 'CFF' ){
+                         Post::where('cadre_code', $cadreCode)->increment('total_post_left');
+                         Post::where('cadre_code', $cadreCode)->increment('cff_post_left');
+                         Post::where('cadre_code', $cadreCode)->decrement('allocated_post_count');
+                    }
+                    else if( $cadreStatus == 'EM' ){
+                         Post::where('cadre_code', $cadreCode)->increment('total_post_left');
+                         Post::where('cadre_code', $cadreCode)->increment('em_post_left');
+                         Post::where('cadre_code', $cadreCode)->decrement('allocated_post_count');
+                    }
+                    else if( $cadreStatus == 'PHC' ){
+                         Post::where('cadre_code', $cadreCode)->increment('total_post_left');
+                         Post::where('cadre_code', $cadreCode)->increment('phc_post_left');
+                         Post::where('cadre_code', $cadreCode)->decrement('allocated_post_count');
+                    }
+                }
 
                 //Update Candidate
                 Candidate::where('reg', $reg)->update([
@@ -70,103 +118,15 @@ class AllocationController extends Controller
 
                 //Update Post Availability
                 Post::where('cadre_code', $cadreCode)->update([
-                    'total_post' => intval($post_row->total_post - 1),
-                    'mq_post' => ($cand['allocation_type'] == 'MQ') ? intval($post_row->mq_post - 1) : $post_row->mq_post,
-                    'cff_post' => ($cand['allocation_type'] == 'CFF') ? intval($post_row->cff_post - 1) : $post_row->cff_post,
-                    'em_post' => ($cand['allocation_type'] == 'EM') ? intval($post_row->em_post - 1) : $post_row->em_post,
-                    'phc_post' => ($cand['allocation_type'] == 'PHC') ? intval($post_row->phc_post - 1) : $post_row->phc_post,
-                    'allocated_post' => intval($post_row->allocated_post + 1),
+                    'total_post_left' => intval($post_row->total_post_left - 1),
+                    'mq_post_left' => ($cand['allocation_type'] == 'MQ') ? intval($post_row->mq_post_left - 1) : $post_row->mq_post_left,
+                    'cff_post_left' => ($cand['allocation_type'] == 'CFF') ? intval($post_row->cff_post_left - 1) : $post_row->cff_post_left,
+                    'em_post_left' => ($cand['allocation_type'] == 'EM') ? intval($post_row->em_post_left - 1) : $post_row->em_post_left,
+                    'phc_post_left' => ($cand['allocation_type'] == 'PHC') ? intval($post_row->phc_post_left - 1) : $post_row->phc_post_left,
+                    'allocated_post_count' => intval($post_row->allocated_post_count + 1),
                 ]);
             }
         }
-    }
-
-    private function solveMultipleAllocations( $allocationResult )
-    {
-        $solvedResult = [];
-
-        foreach( $allocationResult as $cadreCode => $list )
-        {
-
-            foreach( $list as $candidate )
-            {
-
-                $reg = $candidate['candidate']->reg;
-
-                $rawChoiceList = $this->parse_choices_list( $candidate['candidate']->choice_list );
-
-                //Count total temporary assignments
-                $count = 0;
-                $foundIn = [];
-
-                foreach( $allocationResult as $c2 => $l2 )
-                {
-                    foreach( $l2 as $item )
-                    {
-                        if( $item['candidate']->reg === $reg )
-                        {
-                            $count++;
-                            $foundIn[] = $c2;
-                        }
-                    }
-                }
-
-                if ($count == 0) continue;
-                
-                if ($count == 1)
-                {
-                    // no conflict; assign and contine
-                    $solvedResult[$cadreCode][] = [
-                        'reg_no' => $candidate['candidate']->reg,
-                        'allocation_status' => 'final',
-                        'candidate' => $candidate['candidate'],
-                        'allocation_type' => $candidate['allocation_type'],
-                        'waiting_cadres' => '',
-                    ];
-
-                    continue;
-                }
-
-                $choiceListArrayLenght = count( $rawChoiceList );
-
-                $bestChoicePositionAbbr = $this->get_best_choice_abbr( $foundIn, $rawChoiceList );
-                $bestChoicePositionIndex = $this->get_best_choice_index( $foundIn, $rawChoiceList );
-                $currentIterationCadreAbbr = $this->get_cadre_abbr_by_code( $cadreCode );
-
-                //Choose highest preference
-                $upperCadresWaitingList = [];
-
-                if( $bestChoicePositionIndex > 0 ){
-                    $upperCadresWaitingList = array_slice($rawChoiceList, 0, $bestChoicePositionIndex);
-                }
-
-                $status = 'temporary';
-
-                if( $bestChoicePositionIndex == 0 ){
-                    $status = 'final';
-                }
-
-                if( $currentIterationCadreAbbr == $bestChoicePositionAbbr )
-                {
-                    $solvedResult[$cadreCode][] = [
-                        'reg_no' => $candidate['candidate']->reg,
-                        'allocation_status' => $status,
-                        'candidate' => $candidate['candidate'],
-                        'waiting_cadres' => implode(" ", $upperCadresWaitingList),
-                        'allocation_type' => $candidate['allocation_type'],
-                    ];
-
-                    continue;
-                }
-                else
-                {
-
-                }
-                
-            }
-        }
-
-        return $solvedResult;
     }
 
     private function generateAllocationQueues()
@@ -200,6 +160,24 @@ class AllocationController extends Controller
                         {
                             continue;
                         }
+                    }
+
+                    $currentlyAssigned = NULL;
+
+                    //Check if already assigned or not; If assigned need to put in higher queue only
+                    if( isset($candidate->assigned_cadre) && $candidate->assigned_cadre !== NULL )
+                    {
+                        $currentlyAssigned = true;
+
+                        $existingCadreCode = $candidate->assigned_cadre;
+                        $existingCadreAbbr = $this->get_cadre_abbr_by_code( $existingCadreCode );
+                        $iterationCadreAbbr = $this->get_cadre_abbr_by_code( $choice );
+
+                        if( $this->compare_iteration_cadre_abbr_with_existing_allocation($existingCadreAbbr, $iterationCadreAbbr, $choices) ){
+                            continue;
+                        }
+
+
                     }
                     
                     if( $cadre_code != null )
@@ -259,15 +237,15 @@ class AllocationController extends Controller
         foreach( $sortedQueues as $cadreCode => $queue )
         {
             //Check post availabitlity for this $cadreCode
-            $mq_posts_left = max(0, $this->get_remaining_posts_count('mq', $cadreCode));
-            $cff_posts_left = max(0, $this->get_remaining_posts_count('cff', $cadreCode));
-            $em_posts_left = max(0, $this->get_remaining_posts_count('em', $cadreCode));
-            $phc_posts_left = max(0, $this->get_remaining_posts_count('phc', $cadreCode));
+            $mq_posts_left = max(0, $this->get_remaining_posts_count('mq_post_left', $cadreCode));
+            $cff_posts_left = max(0, $this->get_remaining_posts_count('cff_post_left', $cadreCode));
+            $em_posts_left = max(0, $this->get_remaining_posts_count('em_post_left', $cadreCode));
+            $phc_posts_left = max(0, $this->get_remaining_posts_count('phc_post_left', $cadreCode));
 
-            $total_post = $this->get_remaining_posts_count('total', $cadreCode);
-            $allocated_post = max(0, $this->get_remaining_posts_count('allocated', $cadreCode));
+            $total_post = $this->get_remaining_posts_count('total_post_left', $cadreCode);
+            $allocated_post = max(0, $this->get_remaining_posts_count('allocated_post_count', $cadreCode));
 
-            $posts_left = max(0, intval($total_post) - intval($allocated_post));
+            $posts_left = max(0, $total_post);
 
             $allocationResult[$cadreCode] = [];
 
@@ -364,20 +342,141 @@ class AllocationController extends Controller
         return $allocationResult;
     }
 
+    private function solveMultipleAllocations( $allocationResult )
+    {
+        $solvedResult = [];
+
+        foreach( $allocationResult as $cadreCode => $list )
+        {
+
+            foreach( $list as $candidate )
+            {
+
+                $reg = $candidate['candidate']->reg;
+
+                $rawChoiceList = $this->parse_choices_list( $candidate['candidate']->choice_list );
+
+                //Count total temporary assignments
+                $count = 0;
+                $foundIn = [];
+
+                foreach( $allocationResult as $c2 => $l2 )
+                {
+                    foreach( $l2 as $item )
+                    {
+                        if( $item['candidate']->reg === $reg )
+                        {
+                            $count++;
+                            $foundIn[] = $c2;
+                        }
+                    }
+                }
+
+                if ($count === 0) continue;
+
+                $choiceListArrayLenght = count( $rawChoiceList );
+
+                $bestChoicePositionAbbr = $this->get_best_choice_abbr( $foundIn, $rawChoiceList );
+                $bestChoicePositionIndex = $this->get_best_choice_index( $foundIn, $rawChoiceList );
+                $currentIterationCadreAbbr = $this->get_cadre_abbr_by_code( $cadreCode );
+
+                //Choose highest preference
+                $upperCadresWaitingList = [];
+                $upperCadresWaitingListFinal = [];
+
+                //check if higher cadre exists in post allocaiton table
+                $all_open_posts_codes = $this->get_all_open_posts_abbr();
+
+                $status = 'temporary';
+
+                if( $bestChoicePositionIndex > 0 )
+                {
+                    $upperCadresWaitingList = array_slice($rawChoiceList, 0, $bestChoicePositionIndex);
+
+                    if( count($upperCadresWaitingList) > 0 )
+                    {
+                        foreach($upperCadresWaitingList as $cadreAbbr)
+                        {
+                            $is_tech = $this->get_cadre_type_by_code( $this->get_cadre_code_by_abbr($cadreAbbr) );
+
+                            $passed = true;
+
+                            $technicalPassedInfo = json_decode( $candidate['candidate']->technical_passed_cadres, true ) ?? [];
+
+                            if( $is_tech == 'T' ){
+                                $passed = in_array( $cadreAbbr, array_keys($technicalPassedInfo) );
+                            }
+                            
+                            if( $all_open_posts_codes->contains('cadre_code', $this->get_cadre_code_by_abbr($cadreAbbr) )  && $passed )
+                            {
+                                $upperCadresWaitingListFinal[] = $cadreAbbr;
+                            }
+                        }
+                    }
+                }
+
+                if( count($upperCadresWaitingListFinal) < 1 ){
+                    $status = 'final';
+                }
+
+                if( $bestChoicePositionIndex == 0 ){
+                    $status = 'final';
+                }
+                
+                if ($count === 1)
+                {
+                    // no conflict; assign and contine
+                    $solvedResult[$cadreCode][] = [
+                        'reg_no' => $candidate['candidate']->reg,
+                        'allocation_status' => $status,
+                        'candidate' => $candidate['candidate'],
+                        'allocation_type' => $candidate['allocation_type'],
+                        'waiting_cadres' => implode(" ", $upperCadresWaitingListFinal),
+                    ];
+
+                    continue;
+                }
+
+                if( $currentIterationCadreAbbr == $bestChoicePositionAbbr )
+                {
+                    $solvedResult[$cadreCode][] = [
+                        'reg_no' => $candidate['candidate']->reg,
+                        'allocation_status' => $status,
+                        'candidate' => $candidate['candidate'],
+                        'waiting_cadres' => implode(" ", $upperCadresWaitingListFinal),
+                        'allocation_type' => $candidate['allocation_type'],
+                    ];
+
+                    continue;
+                }
+                else
+                {
+
+                }
+                
+            }
+        }
+
+        return $solvedResult;
+    }
+
+
+    //Utilities : Helper Functions
+    private function compare_iteration_cadre_abbr_with_existing_allocation($existingCadreAbbr, $iterationCadreAbbr, $choices)
+    {
+        $existingIndex = array_search($existingCadreAbbr, $choices, true);
+        $iterationIndex = array_search($iterationCadreAbbr, $choices, true);
+
+        return $iterationIndex < $existingIndex ? false : true;
+    }
+
     private function get_remaining_posts_count( $type, $cadreCode )
     {
-        $var = 'total_post';
-
-        if( $type ){
-            $var = $type . '_post';
-        }
+        $var = $type;
 
         return Post::where('cadre_code', $cadreCode)->first()->$var ?? 0;
     }
 
-
-
-    //Utilities : Helper Functions
     private function get_cadre_code_by_abbr( $abbr )
     {
         return Cadre::where('cadre_abbr', $abbr)->first()->cadre_code ?? null;
@@ -396,6 +495,11 @@ class AllocationController extends Controller
     private function check_if_open_for_allocation( $code )
     {
         return Post::where('cadre_code', $code)->first()->total_post ?? null;
+    }
+
+    private function get_all_open_posts_abbr()
+    {
+        return Post::select('cadre_code')->where('total_post', '>=', 0)->get() ?? null;
     }
 
     private function parse_choices_list(string $s)

@@ -52,7 +52,7 @@
                       @endif
                     @endforeach
                   </td>
-                  <td class="text-center">
+                  <td class="text-center text-success fw-bold">
                     {{ \App\Models\Cadre::where('cadre_code', $candidate->assigned_cadre)->first()->cadre_abbr }}
                   </td>
                   <td class="text-center">
@@ -61,7 +61,7 @@
                   <td class="text-center">
                     {{ $candidate->allocation_status }}
                   </td>
-                  <td class="text-center">
+                  <td class="text-center text-danger">
                     {{ $candidate->higher_choices }}
                   </td>
               </tr>
