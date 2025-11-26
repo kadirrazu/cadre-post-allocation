@@ -38,4 +38,13 @@ class ContentController extends Controller
             'candidates' => $candidates,
         ]);
     }
+
+    public function allocations_print()
+    {
+        $candidates = Candidate::where('assigned_cadre', '!=', '')->orderBy('assigned_cadre', 'ASC')->get();
+
+        return view('allocations-print', [
+            'candidates' => $candidates,
+        ]);
+    }
 }

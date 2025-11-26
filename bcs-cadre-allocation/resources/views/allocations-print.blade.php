@@ -1,10 +1,10 @@
-<x-layout-dashboard>
+<x-layout-dashboard-print>
 
 <!-- Contents Starts Here -->
 
-    <main role="main" class="container">
+    <main role="main" class="container-fluid">
 
-      <div class="starter-template">
+      <div class="print-template">
 
         <h3>Allocation in defferent Cadres:</h3>
 
@@ -72,8 +72,6 @@
 
         </table>
 
-        <a href="{{ url('/print-allocation') }}" class="btn btn-primary mt-3" target="_blank">Print</a>
-
         @else
 
         <p class="alert alert-danger">
@@ -88,4 +86,4 @@
 
 <!-- Contents Ends Here -->
 
-</x-layout-dashboard>
+</x-layout-dashboard-print>
